@@ -74,7 +74,7 @@ app.get ('/chat', async  (req,res)=>{
   const result = await ret.invoke(userQuery);
   
   const SYSTEM_PROMPT =
-  `You are a helpful assistant who answers the query based on the available context from PDF File and always try to answer point to point  ".
+  `You are a helpful assistant who answers the query based on the available context from PDF File and try to answer in detailed form ".
   Context:  ${JSON.stringify(result )}
   `;
 

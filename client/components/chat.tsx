@@ -49,7 +49,7 @@ export default function ChatComponent() {
     return (
         <div className="p-4 flex flex-col h-screen">
             {/* Chat Messages */}
-            <div className="flex-1 overflow-y-auto mb-4 bg-gray-100 p-4 rounded-lg shadow-inner">
+            <div className="flex-1 w-[50vw] overflow-y-auto mb-4 bg-gray-100 p-4 rounded-lg shadow-inner">
                 {messages.map((message, index) => (
                     <div
                         key={index}
