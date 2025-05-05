@@ -8,7 +8,6 @@ import {OpenAI} from 'openai';
 
 
 
-console.log('OpenAI API Key:', process.env.OPENAI_API_KEY);
 const client = new OpenAI({
   apiKey : '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'
 });
@@ -41,16 +40,19 @@ const app = express()
 app.use(cors());
 
 app.get('/', (req,res)=>{
-    return res.json({status: "All Good"})
+    return res.json({status: "All Good"});
 })
 
-app.post('/upload/pdf',upload.single('pdf'), (req,res)=>{
-  queue.add('file-ready', JSON.stringify({
-    filename : req.file.originalname,
-    source: req.file.destination,
-    path: req.file.path 
-  }))
-    return res.json({message: 'File uploaded'});
+app.post('/upload/pdf',upload.single('pdf'), async (req,res)=>{
+  await queue.add(
+    'file-ready', 
+    JSON.stringify({
+      filename : req.file.originalname,
+      source: req.file.destination,
+      path: req.file.path 
+  })
+);
+  return res.json({message: 'File uploaded'});
 });
 
 
