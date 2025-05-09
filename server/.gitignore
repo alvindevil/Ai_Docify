@@ -1,6 +1,9 @@
 # dependencies
 node_modules/
 
+#uploads files ,  no need to track them again n again 
+uploads/
+
 # environment variables
 .env.local
 .env
