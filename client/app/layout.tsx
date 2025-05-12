@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import {ClerkProvider, SignedIn, SignedOut, SignIn, SignOutButton, SignUp} from "@clerk/nextjs";
+import {ClerkProvider, SignedIn, SignedOut, SignIn, SignInButton, SignOutButton, SignUp, SignUpButton} from "@clerk/nextjs";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -26,17 +26,37 @@ export default function RootLayout({
   return (
     <ClerkProvider>
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
           <SignedOut>
             <section className="min-h-screen w-screen flex flex-col items-center justify-center">
-              <SignIn></SignIn>
+                <div className="flex flex-col items-center justify-center gap-4 p-6 border rounded-lg shadow-lg bg-white">
+                <h1 className="text-2xl font-semibold">Welcome</h1>
+                <p className="text-gray-600">Sign in or sign up to continue</p>
+                <div className="flex gap-4">
+                  <SignInButton>
+                  <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                    Sign In
+                  </button>
+                  </SignInButton>
+                  <SignUpButton>
+                  <button className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
+                    Sign Up
+                  </button>
+                  </SignUpButton>
+                </div>
+                </div>
             </section>
           </SignedOut>
 
           <SignedIn>
             {children}
+            <div className="absolute bottom-4 right-4">
+              <SignOutButton>
+                <button className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded hover:bg-red-600">
+                  Sign Out
+                </button>
+              </SignOutButton>
+            </div>
           </SignedIn>
         
       </body>
