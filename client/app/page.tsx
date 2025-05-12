@@ -1,6 +1,6 @@
 "use client";
 import React, { use } from "react";
-import Image from "next/image";
+/* import Image from "next/image"; */
 import FileUpload from "@/components/file-upload";
 import ChatComponent from "@/components/chat";
 import PdfQueuePanel from "@/components/PdfQueuePanel";
