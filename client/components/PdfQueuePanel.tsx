@@ -14,8 +14,8 @@ interface PdfQueuePanelProps {
 
 export default function PdfQueuePanel({ files, activeId, onSelect }: PdfQueuePanelProps) {
   return (
-    <div className="w-full p-2 bg-gray-100 shadow-md overflow-x-auto">
-      <div className="flex space-x-4">
+    <div className="w-full h-[400px] p-2 bg-gray-100 shadow-md overflow-x-auto">
+      <div className="flex flex-col justify-center gap-2">
         {files.map((file) => (
           <div
             key={file.id}
