@@ -42,7 +42,7 @@ export default function FileUpload({ onFileUploaded }: Props) {
 
   return (
         <div onClick={handleFileUpload} 
-        className="flex flex-col items-center justify-center w-64 h-32 border-2 border-dashed border-gray-300 rounded-lg hover:bg-blue-100 hover:shadow-md transition-all duration-200 cursor-pointer group">
+        className="flex flex-col items-center justify-center w-[100%] h-32 border-2 border-dashed border-gray-300 rounded-lg hover:bg-blue-100 hover:shadow-md transition-all duration-200 cursor-pointer group">
           <div className="group-hover:text-black scale-140">
             <FileUp/>
           </div>

@@ -50,12 +50,13 @@ export default function RootLayout({
 
           <SignedIn>
             {children}
-            <div className="absolute bottom-4 right-4">
+            <div className="absolute bottom-4 left-4">
               <SignOutButton>
                 <button className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded hover:bg-red-600">
                   Sign Out
                 </button>
               </SignOutButton>
+              
             </div>
           </SignedIn>
         

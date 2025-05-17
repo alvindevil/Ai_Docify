@@ -69,7 +69,7 @@ export default function ChatComponent() {
             </div>
 
             {/* Input Section */}
-            <div className="flex items-center fixed bottom-4 w-[45vw] bg-white p-2 rounded-lg shadow-lg">
+            <div className="flex items-center  bottom-4 w-[45vw] bg-white p-2 rounded-lg shadow-lg">
                 <Input
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}

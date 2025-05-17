@@ -7,14 +7,28 @@ import PdfPreview from "@/components/PdfPreview"; // assumed
 import SummaryPanel from "@/components/SummaryPanel"; // assumed
 import NotesPanel from "@/components/NotesPanel"; // assumed
 import ChatComponent from "@/components/chat";
+import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
 
   const [showChat, setShowChat] = useState(false);
   const [showNotes, setShowNotes] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
-
   
+
+  // ✅ Load from localStorage when component mounts
+  useEffect(() => {
+    const savedFiles = localStorage.getItem('uploadedFiles');
+    if (savedFiles) {
+      setUploadedFiles(JSON.parse(savedFiles));
+    }
+  }, []);
+
+  // ✅  Save to localStorage every time files update
+  useEffect(() => {
+    localStorage.setItem('uploadedFiles', JSON.stringify(uploadedFiles));
+  }, [uploadedFiles]);
 
    const handleFileUploaded = (fileName: string) => {
     setUploadedFiles((prev) => [...prev, fileName]);
@@ -24,7 +38,7 @@ export default function Home() {
     <div className="flex flex-row gap-2 min-h-screen w-screen bg-white">
       
       {/* LEFT SIDEBAR */}
-      <aside className="w-[18vw] bg-white  p-4 flex flex-col gap-4">
+      <aside className="w-[20vw] bg-white  p-4 flex flex-col gap-4">
 
         <h2 className="text-lg font-semibold text-center mb-2">📁 Upload</h2>
         <FileUpload onFileUploaded={handleFileUploaded} />
@@ -32,12 +46,23 @@ export default function Home() {
         <div className="mt-4">
           <h3 className="text-md font-semibold mb-2">🗂️ Uploaded PDFs</h3>
           <PdfQueuePanel files={uploadedFiles} />
+          <Button
+            variant="destructive"
+            className="mt-10 w-full"
+            onClick={() => {
+              localStorage.removeItem('uploadedFiles'); // 🗑️ Clear localStorage
+              setUploadedFiles([]);                     // 🧼 Clear state/UI
+            }}
+          >
+            Clear All
+          </Button>
+
         </div>
       </aside>
 
 
       {/* MAIN VIEWER AREA */}
-      <main className="w-[55vw] p-6 flex flex-col gap-4">
+      <main className="w-[60vw] p-6 flex flex-col gap-4">
         <div>
           <h2 className="text-xl font-bold mb-2">📄 PDF Preview</h2>
           <PdfPreview pdfUrl={null} />
