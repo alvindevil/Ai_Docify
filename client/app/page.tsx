@@ -9,32 +9,32 @@ import NotesPanel from "@/components/NotesPanel"; // assumed
 import ChatComponent from "@/components/chat";
 
 export default function Home() {
+
   const [showChat, setShowChat] = useState(false);
   const [showNotes, setShowNotes] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
+
+  
+
+   const handleFileUploaded = (fileName: string) => {
+    setUploadedFiles((prev) => [...prev, fileName]);
+  }
 
   return (
     <div className="flex flex-row gap-2 min-h-screen w-screen bg-white">
       
       {/* LEFT SIDEBAR */}
       <aside className="w-[18vw] bg-white  p-4 flex flex-col gap-4">
+
         <h2 className="text-lg font-semibold text-center mb-2">📁 Upload</h2>
-        <FileUpload />
+        <FileUpload onFileUploaded={handleFileUploaded} />
+
         <div className="mt-4">
-          <h3 className="text-md font-semibold mb-2">🗂️ My PDFs</h3>
-          <PdfQueuePanel files={[
-
-            {name : "sample1.pdf" , id: "1"},
-            {name : "sample2.pdf" , id: "2"},
-            {name : "sample2.pdf" , id: "2"},
-            {name : "sample2.pdf" , id: "2"},
-            {name : "sample2.pdf" , id: "2"},
-            {name : "sample2.pdf" , id: "2"}
-
-          ]} activeId={""} onSelect={function (id: string): void {
-            throw new Error("Function not implemented.");
-          } } />
+          <h3 className="text-md font-semibold mb-2">🗂️ Uploaded PDFs</h3>
+          <PdfQueuePanel files={uploadedFiles} />
         </div>
       </aside>
+
 
       {/* MAIN VIEWER AREA */}
       <main className="w-[55vw] p-6 flex flex-col gap-4">
@@ -73,6 +73,8 @@ export default function Home() {
           </div>
         )}
       </main>
+
+
 
       {/* CHAT SIDEBAR */}
       {showChat && (

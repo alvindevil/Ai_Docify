@@ -1,34 +1,32 @@
-'use client'
-import React from 'react'
+'use client';
+import React from 'react';
 
-interface PdfFile {
-  name: string;
-  id: string; // unique identifier
+interface Props {
+  files: string[];
 }
 
-interface PdfQueuePanelProps {
-  files: PdfFile[];
-  activeId: string;
-  onSelect: (id: string) => void;
-}
-
-export default function PdfQueuePanel({ files, activeId, onSelect }: PdfQueuePanelProps) {
+export default function PdfQueuePanel({ files }: Props) {
   return (
-    <div className="w-full h-[400px] p-2 bg-gray-100 shadow-md overflow-x-auto">
-      <div className="flex flex-col justify-center gap-2">
-        {files.map((file) => (
+    <div className="flex flex-col w-max-[100%] gap-2 overflow-hidden p-2 border rounded bg-gray-100 ">
+      {files.length === 0 ? (
+        <p className="text-sm text-gray-500">No files uploaded yet</p>
+      ) : (
+        files.map((file, index) => (
           <div
-            key={file.id}
-            onClick={() => onSelect(file.id)}
-            className={`px-4 py-2 rounded-lg cursor-pointer border 
-              ${file.id === activeId 
-                ? 'bg-blue-600 text-white border-blue-600' 
-                : 'bg-white text-gray-800 hover:bg-gray-200'}`}
+            key={index}
+            className="px-4 py-2 w-[100%] overflow-auto bg-white rounded shadow text-sm whitespace-nowrap hover:bg-blue-200 cursor-pointer scrollbar-hide"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
-            {file.name.length > 15 ? file.name.slice(0, 12) + '...' : file.name}
+            <style jsx>{`
+              .scrollbar-hide::-webkit-scrollbar {
+              display: none;
+              }
+            `}</style>
+
+            {file}
           </div>
-        ))}
-      </div>
+        ))
+      )}
     </div>
-  )
+  );
 }

@@ -2,26 +2,37 @@
 import React from 'react'
 import { FileUp } from 'lucide-react';
 
+interface Props {
+  onFileUploaded: (fileName: string) => void;
+}
 
  
-export default function FileUpload() {
+export default function FileUpload({ onFileUploaded }: Props) {
   
   const handleFileUpload = () =>{
     const el = document.createElement('input');
     el.setAttribute('type', 'file');
     el.setAttribute('accept', 'application/pdf');
     el.click();
+
     el.addEventListener('change', async () => {
       if (el.files && el.files.length > 0) {  
         const file = el.files.item(0);
         if (file){
           const formdata = new FormData();
           formdata.append('pdf', file);
-          await fetch('http://localhost:8000/upload/pdf',  {
+          
+          const res = await fetch('http://localhost:8000/upload/pdf',  {
             method: 'POST',
             body: formdata
           });
-          console.log(file.name); 
+
+          if (res.ok) {
+            console.log(file.name);
+            onFileUploaded(file.name);
+          }
+
+
         }
       }
     })
