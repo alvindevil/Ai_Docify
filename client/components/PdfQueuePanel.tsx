@@ -3,9 +3,11 @@ import React from 'react';
 
 interface Props {
   files: string[];
+  onSelect: (fileName: string) => void;
+  selectedFile: string | null;
 }
 
-export default function PdfQueuePanel({ files }: Props) {
+export default function PdfQueuePanel({ files, onSelect, selectedFile }: Props) {
   return (
     <div className="flex flex-col w-max-[100%] gap-2 overflow-hidden p-2 border rounded bg-gray-100 ">
       {files.length === 0 ? (
@@ -13,18 +15,17 @@ export default function PdfQueuePanel({ files }: Props) {
       ) : (
         files.map((file, index) => (
           <div
-            key={index}
-            className="px-4 py-2 w-[100%] overflow-auto bg-white rounded shadow text-sm whitespace-nowrap hover:bg-blue-200 cursor-pointer scrollbar-hide"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          >
-            <style jsx>{`
-              .scrollbar-hide::-webkit-scrollbar {
-              display: none;
-              }
-            `}</style>
-
-            {file}
-          </div>
+          key={index}
+          onClick={() => {
+            onSelect(file);
+            localStorage.setItem("selectedPdf", file); // Persist selected file
+          }}
+          className={`cursor-pointer p-2 rounded-md text-sm ${
+            selectedFile === file ? 'bg-blue-200 font-semibold' : 'hover:bg-gray-100'
+          }`}
+        >
+          {file}
+        </div>
         ))
       )}
     </div>

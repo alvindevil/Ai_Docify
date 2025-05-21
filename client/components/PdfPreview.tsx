@@ -1,24 +1,17 @@
-'use client'
-import React from 'react'
-
 interface PdfPreviewProps {
-  pdfUrl: string | null;
+  pdfUrl: string;
 }
 
-const PdfPreview: React.FC<PdfPreviewProps> = ({ pdfUrl }) => {
+export default function PdfPreview({ pdfUrl }: PdfPreviewProps) {
   return (
-    <div className="w-full h-[70vh] border rounded-lg shadow-sm bg-white flex items-center justify-center">
-      {pdfUrl ? (
-        <iframe
-          src={pdfUrl}
-          className="w-full h-full rounded"
-          title="PDF Preview"
-        />
-      ) : (
-        <p className="text-gray-500">No PDF selected. Please upload one to preview.</p>
-      )}
+    <div className="w-full h-[80vh] border rounded overflow-hidden">
+      <iframe
+        src={pdfUrl}
+        title="PDF Viewer"
+        width="100%"
+        height="100%"
+        className="border-none"
+      />
     </div>
   );
-};
-
-export default PdfPreview;
+}

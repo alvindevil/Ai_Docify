@@ -15,7 +15,17 @@ export default function Home() {
   const [showChat, setShowChat] = useState(false);
   const [showNotes, setShowNotes] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
+  const [selectedPdf, setSelectedPdf] = React.useState<string | null>(null);
   
+  // Restore last selected PDF from localStorage
+React.useEffect(() => {
+  const lastOpened = localStorage.getItem("selectedPdf");
+  if (lastOpened) {
+    setSelectedPdf(lastOpened);
+  }
+}, []);
+
+
 
   // ✅ Load from localStorage when component mounts
   useEffect(() => {
@@ -45,7 +55,11 @@ export default function Home() {
 
         <div className="mt-4">
           <h3 className="text-md font-semibold mb-2">🗂️ Uploaded PDFs</h3>
-          <PdfQueuePanel files={uploadedFiles} />
+          <PdfQueuePanel
+            files={uploadedFiles}
+            onSelect={(file) => setSelectedPdf(file)}
+            selectedFile={selectedPdf}
+          />
           <Button
             variant="destructive"
             className="mt-10 w-full"
@@ -65,7 +79,8 @@ export default function Home() {
       <main className="w-[60vw] p-6 flex flex-col gap-4">
         <div>
           <h2 className="text-xl font-bold mb-2">📄 PDF Preview</h2>
-          <PdfPreview pdfUrl={null} />
+          {/* Manually specify the PDF path relative to the public directory or API endpoint */}
+          <PdfPreview pdfUrl={"../server/uploads/your-file.pdf"} />
         </div>
 
         <div>
