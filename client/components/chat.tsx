@@ -47,9 +47,9 @@ export default function ChatComponent() {
     };
 
     return (
-        <div className="p-4 flex flex-col h-screen">
+        <div className="p-4 flex flex-col w-auto h-[60%]  h-max-[100%] overflow-auto">
             {/* Chat Messages */}
-            <div className="flex-1 w-[50vw] overflow-y-auto mb-4 bg-gray-100 p-4 rounded-lg shadow-inner">
+            <div className="flex-1 w-[100%] overflow-y-auto mb-4 bg-gray-100 p-4 rounded-lg shadow-inner">
                 {messages.map((message, index) => (
                     <div
                         key={index}
@@ -69,7 +69,7 @@ export default function ChatComponent() {
             </div>
 
             {/* Input Section */}
-            <div className="flex items-center  bottom-4 w-[45vw] bg-white p-2 rounded-lg shadow-lg">
+            <div className="flex items-center  bottom-4 w-[100%] bg-white p-2 rounded-lg shadow-lg">
                 <Input
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}

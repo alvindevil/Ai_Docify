@@ -18,6 +18,16 @@ export default function Home() {
   const [showNotes, setShowNotes] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
   const [selectedPdf, setSelectedPdf] = React.useState<string | null>(null);
+  const [summaryText, setSummaryText] = useState<string | null>(null);
+  const [isSummaryLoading, setIsSummaryLoading] = useState<boolean>(false);
+  const [summaryError, setSummaryError] = useState<string | null>(null);
+
+useEffect(() => {
+    setSummaryText(null);
+    setSummaryError(null);
+    setIsSummaryLoading(false); // Reset loading state too
+  }, [selectedPdf]);
+
 
 
   
@@ -44,12 +54,60 @@ React.useEffect(() => {
     localStorage.setItem('uploadedFiles', JSON.stringify(uploadedFiles));
   }, [uploadedFiles]);
 
-   const handleFileUploaded = (fileName: string) => {
+  const handleFileUploaded = (fileName: string) => {
     setUploadedFiles((prev) => [...prev, fileName]);
   }
 
+  const handleGenerateSummary = async () => {
+    if (!selectedPdf) {
+      alert("Please select a PDF to summarize.");
+      return;
+    }
+
+    setIsSummaryLoading(true);
+    setSummaryText(null);
+    setSummaryError(null);
+
+    try {
+      // URL for the request
+      const requestUrl = `${BACKEND_URL}/api/summarize?fileName=${encodeURIComponent(selectedPdf)}`;
+      // console.log("Client: Requesting summary from URL:", requestUrl);
+
+      const response = await fetch(requestUrl); // This is where the HTML might be coming from
+
+      // Check if the response is OK (status in the range 200-299)
+      if (!response.ok) {
+        // If not OK, try to parse as text first to see if it's HTML
+        const errorText = await response.text();
+        console.error("Client: Server responded with an error. Status:", response.status);
+        console.error("Client: Server error response text:", errorText);
+        // Try to parse as JSON only if it's likely to be JSON based on content-type,
+        // or just assume a generic error message if parsing text as JSON fails.
+        try {
+            const errorData = JSON.parse(errorText); //  where the "<!DOCTYPE" error happens
+            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        } catch (jsonParseError) {
+            // If it's not JSON (e.g., it's an HTML 404 page), use the raw text or a generic message
+            throw new Error(`Server error: ${response.status}. Response was not valid JSON. Preview: ${errorText.substring(0,100)}`);
+        }
+      }
+
+      // If response.ok is true, then we expect JSON
+      const data = await response.json();
+      setSummaryText(data.summary);
+      // console.log("Client: Summary received:", data.summary.substring(0,100) + "...");
+
+    } catch (error) {
+      console.error("Client: Error fetching summary:", error);
+      setSummaryError(error instanceof Error ? error.message : "An unknown error occurred.");
+    } finally {
+      setIsSummaryLoading(false);
+    }
+  };
+
+
   return (
-    <div className="flex flex-row gap-2 min-h-screen w-screen bg-white">
+    <div className="flex flex-row gap-2 min-h-screen  w-max-screen bg-white">
       
       {/* LEFT SIDEBAR */}
       <aside className="w-[20vw] bg-white  p-4 flex flex-col gap-4">
@@ -80,7 +138,7 @@ React.useEffect(() => {
 
 
       {/* MAIN VIEWER AREA */}
-      <main className="w-[60vw] p-6 flex flex-col gap-4">
+      <main className="w-fit min-w-[50vw]  p-6 flex flex-col gap-4">
         <div>
           <h2 className="text-xl font-bold mb-2">📄 PDF Preview</h2>
           {(() => {
@@ -101,8 +159,23 @@ React.useEffect(() => {
         </div>
 
         <div>
-          <h2 className="text-xl font-bold mb-2">🧠 Summary</h2>
-          <SummaryPanel />
+          <div className="flex justify-between items-center mb-2">
+            <h2 className="text-xl font-bold">🧠 Summary</h2>
+            <Button 
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4  py-2 rounded-lg shadow"
+              onClick={handleGenerateSummary}
+              disabled={!selectedPdf || isSummaryLoading}
+              size="sm" // Using shadcn Button
+            > 
+              {isSummaryLoading ? "Generating..." : "Generate Summary"}
+              Generate Summary
+            </Button> 
+          </div> 
+          <SummaryPanel
+            summary={summaryText}
+            isLoading={isSummaryLoading}
+            error={summaryError}
+          />
         </div>
 
         {/* ACTION BUTTONS */}
@@ -135,7 +208,7 @@ React.useEffect(() => {
 
       {/* CHAT SIDEBAR */}
       {showChat && (
-        <aside className="w-[27vw] border-l p-4 bg-white">
+        <aside className="w-[45vw] min-w-[20vw] border-l p-4 bg-white">
           <h2 className="text-lg font-semibold mb-2">💬 Chat Assistant</h2>
           <ChatComponent />
         </aside>

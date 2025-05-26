@@ -6,6 +6,8 @@ import { OpenAIEmbeddings } from '@langchain/openai';
 import { QdrantVectorStore } from '@langchain/qdrant';
 import {OpenAI} from 'openai';
 import dotenv from 'dotenv';
+import path from 'path';
+import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 
 dotenv.config();
 
@@ -79,6 +81,106 @@ app.post('/upload/pdf', upload.single('pdf'), (req, res) => {
 
 // Serve the uploads folder as static files
 app.use('/uploads', express.static('uploads'));
+
+//summarization endpoint
+app.get('/api/summarize', async (req, res) => {
+  const { fileName } = req.query; // Expecting filename as a query parameter
+  console.log(`Server: Summarization request received for file: ${fileName}`);
+
+  if (!fileName || typeof fileName !== 'string') {
+    console.log("[Server /api/summarize] Invalid request: fileName query parameter is missing or not a string.");
+    return res.status(400).json({ message: "fileName query parameter is required and must be a string." });
+  }
+
+  // IMPORTANT: Sanitize or validate `fileName` to prevent directory traversal attacks
+  // For now, we assume it's just the filename. A better approach would be to ensure
+  // it doesn't contain '..' or other path manipulation characters.
+  // However, since we construct a full path from a base 'uploads' dir, it's somewhat safer.
+  const filePath = path.join('uploads', fileName); // Construct path to the PDF
+
+  console.log(`[Server /api/summarize] Request received for: ${fileName}`);
+  console.log(`[Server /api/summarize] Attempting to load PDF from path: ${filePath}`);
+
+  try {
+    const loader = new PDFLoader(filePath);
+    console.log(`[Server /api/summarize] PDFLoader initialized for ${filePath}.`);
+    const docs = await loader.load(); // Loads all pages/content
+    console.log(`[Server /api/summarize] PDF loaded. Number of pages/docs: ${docs ? docs.length : 'null/undefined'}.`);
+
+    if (!docs || docs.length === 0) {
+      console.error(`Server: No content found in PDF: ${fileName}`);
+      return res.status(404).json({ message: `Could not load or find content in PDF: ${fileName}` });
+    }
+
+    // Concatenate the page content from all loaded documents (pages)
+    const fullPdfText = docs.map(doc => doc.pageContent).join('\n\n'); // Join pages with double newline
+    console.log(`[Server /api/summarize] Full text extracted. Length: ${fullPdfText.length}. Preview (first 100 chars): ${fullPdfText.substring(0, 100)}...`);
+
+    if (fullPdfText.trim().length === 0) {
+        console.error(`[Server /api/summarize] Extracted text is empty for PDF: ${fileName}`);
+        return res.status(400).json({ message: `Extracted text from PDF is empty: ${fileName}. Cannot summarize.` });
+    }
+
+    // console.log(`Server: Full text extracted (first 500 chars): ${fullPdfText.substring(0, 500)}...`);
+
+    // Define a prompt for summarization
+    const SUMMARIZATION_PROMPT = `Please provide a concise summary of the following document text. Focus on the main points and key takeaways. Format the summary in clear, easy-to-understand language.
+
+Document Text:
+---
+${fullPdfText}
+---
+
+Concise Summary:`;
+
+    console.log(`[Server /api/summarize] Sending summarization request to OpenAI for ${fileName}. Prompt length (approx): ${SUMMARIZATION_PROMPT.length}`);
+    const summaryCompletion = await client.chat.completions.create({
+      model: 'gpt-3.5-turbo', // Or any other model suitable for summarization
+      messages: [
+        // No system prompt is strictly necessary here, the user prompt is direct
+        { role: 'user', content: SUMMARIZATION_PROMPT },
+      ],
+      temperature: 0.3, // Lower temperature for more factual summaries
+      max_tokens: 500, // Adjust based on desired summary length
+    });
+    console.log(`[Server /api/summarize] OpenAI response received for ${fileName}.`);
+    
+    const summary = summaryCompletion.choices[0]?.message?.content?.trim();
+
+    if (!summary) {
+      console.error(`[Server /api/summarize] OpenAI did not return a summary content for ${fileName}. Choices:`, summaryCompletion.choices);
+      return res.status(500).json({ message: "Failed to generate summary: OpenAI returned no content." });
+    }
+
+    // console.log(`Server: Summary generated for ${fileName}: ${summary.substring(0, 100)}...`);
+    console.log(`[Server /api/summarize] Summary generated successfully for ${fileName}.`);
+    return res.json({ summary });
+
+  } catch (error) {
+    console.error(`[Server /api/summarize] --- UNHANDLED ERROR in /api/summarize for ${fileName} ---`);
+    console.error(`[Server /api/summarize] Error Name: ${error.name}`);
+    console.error(`[Server /api/summarize] Error Message: ${error.message}`);
+    console.error(`[Server /api/summarize] Error Code: ${error.code}`); // ENOENT for file not found
+    console.error(`[Server /api/summarize] Error Stack: ${error.stack}`);
+
+    if (error.code === 'ENOENT') { // File not found
+        return res.status(404).json({ message: `PDF file not found on server: ${fileName}`});
+    }
+     // Example for OpenAI specific errors (structure might vary based on openai library version)
+    if (error.response && error.response.data) {
+        console.error('[Server /api/summarize] OpenAI API Error Data:', error.response.data);
+        return res.status(error.response.status || 500).json({
+            message: `OpenAI API error: ${error.response.data.error?.message || 'Unknown OpenAI error'}`,
+            type: error.response.data.error?.type,
+            code: error.response.data.error?.code
+        });
+    }
+
+    return res.status(500).json({ 
+      message: `An error occurred while generating the summary. ${error.message}` 
+    });
+  }
+});
 
 app.get ('/chat', async  (req,res)=>{
   const userQuery = req.query.message;
