@@ -10,12 +10,16 @@ import ChatComponent from "@/components/chat";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 
+const BACKEND_URL = "http://localhost:8000";
+
 export default function Home() {
 
   const [showChat, setShowChat] = useState(false);
   const [showNotes, setShowNotes] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
   const [selectedPdf, setSelectedPdf] = React.useState<string | null>(null);
+
+
   
   // Restore last selected PDF from localStorage
 React.useEffect(() => {
@@ -79,8 +83,21 @@ React.useEffect(() => {
       <main className="w-[60vw] p-6 flex flex-col gap-4">
         <div>
           <h2 className="text-xl font-bold mb-2">📄 PDF Preview</h2>
-          {/* Manually specify the PDF path relative to the public directory or API endpoint */}
-          <PdfPreview pdfUrl={"../server/uploads/your-file.pdf"} />
+          {(() => {
+            console.log("Selected PDF for preview:", selectedPdf); // <<< ADD THIS LOG
+            if (selectedPdf) {
+                  const pdfUrl = `${BACKEND_URL}/uploads/${encodeURIComponent(selectedPdf)}`;
+                  console.log(`Attempting to load PDF from URL: ${pdfUrl}`); // Corrected console log
+                  return <PdfPreview pdfUrl={pdfUrl} />;
+                }
+            else {
+              return (
+                <div className="w-full h-[80vh] border rounded flex items-center justify-center bg-gray-100">
+                  <p className="text-gray-500">No PDF selected. Please upload or select a PDF from the list.</p>
+                </div>
+              );
+            }
+          })()}
         </div>
 
         <div>

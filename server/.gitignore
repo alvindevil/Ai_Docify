@@ -7,6 +7,7 @@ uploads/
 # environment variables
 .env.local
 .env
+server/.env
 
 # logs
 npm-debug.log*

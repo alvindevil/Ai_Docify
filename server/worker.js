@@ -1,9 +1,11 @@
 import { Worker } from 'bullmq';
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
-import { CharacterTextSplitter } from "@langchain/textsplitters";
+/* import { CharacterTextSplitter } from "@langchain/textsplitters"; */
 import { OpenAIEmbeddings } from '@langchain/openai';
 import { QdrantVectorStore } from '@langchain/qdrant';
+import dotenv from 'dotenv'; 
 
+dotenv.config();
 
 
 
@@ -26,7 +28,7 @@ const worker = new Worker(
        const docs = await loader.load();
        
        const embeddings = new OpenAIEmbeddings({
-        apiKey: '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',
+        apiKey: process.env.OPENAI_API_KEY,
         modelName: "text-embedding-3-small"
         });
 

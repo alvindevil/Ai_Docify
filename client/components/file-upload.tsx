@@ -2,6 +2,8 @@
 import React from 'react'
 import { FileUp } from 'lucide-react';
 
+const BACKEND_URL = "http://localhost:8000";
+
 interface Props {
   onFileUploaded: (fileName: string) => void;
 }
@@ -22,16 +24,27 @@ export default function FileUpload({ onFileUploaded }: Props) {
           const formdata = new FormData();
           formdata.append('pdf', file);
           
-          const res = await fetch('http://localhost:8000/upload/pdf',  {
+          const res = await fetch(`${BACKEND_URL}/upload/pdf`,  {
             method: 'POST',
             body: formdata
           });
 
           if (res.ok) {
-            console.log(file.name);
-            onFileUploaded(file.name);
-          }
+            const data = await res.json(); // Get the JSON response
+            console.log("Response data from server:", data); // <<< ADD THIS LOG TO SEE THE FULL RESPONSE
 
+            if (data && data.fileName) {
+              console.log("Original filename from input:", file.name);
+              console.log("Prefixed filename from server:", data.fileName);
+              onFileUploaded(data.fileName);
+            } else {
+              console.error("Server response missing fileName:", data);
+              // Handle error: notify user or retry
+            }
+          } else {
+            console.error("File upload failed. Status:", res.status, await res.text());
+            // Optionally, notify the user of the failure
+          }
 
         }
       }

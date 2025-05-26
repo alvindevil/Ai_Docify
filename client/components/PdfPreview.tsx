@@ -15,3 +15,10 @@ export default function PdfPreview({ pdfUrl }: PdfPreviewProps) {
     </div>
   );
 }
+
+
+
+
+
+
+
