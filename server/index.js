@@ -124,7 +124,7 @@ app.get('/api/summarize', async (req, res) => {
     // console.log(`Server: Full text extracted (first 500 chars): ${fullPdfText.substring(0, 500)}...`);
 
     // Define a prompt for summarization
-    const SUMMARIZATION_PROMPT = `Please provide a concise summary of the following document text. Focus on the main points and key takeaways. Format the summary in clear, easy-to-understand language.
+    const SUMMARIZATION_PROMPT = `Kindly generate a concise and insightful summary of the following document. Highlight the core purpose and subject matter, the key insights or information it offers, its relevance and potential value to the reader, and its significance within its respective domain or field .
 
 Document Text:
 ---
