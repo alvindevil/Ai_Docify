@@ -10,7 +10,7 @@ import ChatComponent from "@/components/chat";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 
-const BACKEND_URL = "http://localhost:8000";
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
 export default function Home() {
 
@@ -162,13 +162,13 @@ React.useEffect(() => {
           <div className="flex justify-between items-center mb-2">
             <h2 className="text-xl font-bold">🧠 Summary</h2>
             <Button 
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4  py-2 rounded-lg shadow"
+              className="bg-blue-500 hover:bg-blue-600 text-white px-5  py-5 rounded-lg shadow cursor-pointer"
               onClick={handleGenerateSummary}
               disabled={!selectedPdf || isSummaryLoading}
               size="sm" // Using shadcn Button
             > 
               {isSummaryLoading ? "Generating..." : "Generate Summary"}
-              Generate Summary
+              
             </Button> 
           </div> 
           <SummaryPanel

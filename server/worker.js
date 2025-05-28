@@ -35,7 +35,7 @@ const worker = new Worker(
         const vectorStore = await QdrantVectorStore.fromExistingCollection(
             embeddings,
             {
-                url: 'http://localhost:6333',
+                url: process.env.QDRANT_URL || 'http://localhost:6333',
                 collectionName: 'Ai_Docs',
             }
         );
@@ -44,10 +44,7 @@ const worker = new Worker(
     },
     { 
     concurrency: 100, 
-    connection: {
-        host: 'localhost',
-        port: '6379'
-        }
+    connection: process.env.REDIS_URL || { host: 'localhost', port: 6379 }
     }
 );
 
