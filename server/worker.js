@@ -1,6 +1,6 @@
-import { Worker } from 'bullmq';
+/* import { Worker } from 'bullmq';
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
-/* import { CharacterTextSplitter } from "@langchain/textsplitters"; */
+import { CharacterTextSplitter } from "@langchain/textsplitters";
 import { OpenAIEmbeddings } from '@langchain/openai';
 import { QdrantVectorStore } from '@langchain/qdrant';
 import dotenv from 'dotenv'; 
@@ -13,7 +13,7 @@ const worker = new Worker(
     'file-upload-queue', 
     async job => {
         console.log('Processing job:', job.data);
-        const data = JSON.parse(job.data);
+        const data = JSON.parse(job.data); */
 
         /*
         Path:  data.path
@@ -24,7 +24,7 @@ const worker = new Worker(
         */
        
 
-       const loader = new PDFLoader(data.path); //Load the pdf 
+       /* const loader = new PDFLoader(data.path); //Load the pdf 
        const docs = await loader.load();
        
        const embeddings = new OpenAIEmbeddings({
@@ -46,7 +46,7 @@ const worker = new Worker(
     concurrency: 100, 
     connection: process.env.REDIS_URL || { host: 'localhost', port: 6379 }
     }
-);
+); */
 
 
 //use this code when need text splitter or texts wordswise
