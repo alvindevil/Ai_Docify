@@ -69,8 +69,8 @@ React.useEffect(() => {
     setSummaryError(null);
 
     try {
-      // URL for the request
-      const requestUrl = `${BACKEND_URL}/api/summarize?fileName=${encodeURIComponent(selectedPdf)}`;
+      // Construct the request URL using the BACKEND_URL variable
+      const requestUrl = `<span class="math-inline">\{BACKEND\_URL\}/api/summarize?fileName\=</span>{encodeURIComponent(selectedPdf)}`;
       // console.log("Client: Requesting summary from URL:", requestUrl);
 
       const response = await fetch(requestUrl); // This is where the HTML might be coming from
