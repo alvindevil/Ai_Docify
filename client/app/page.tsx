@@ -136,7 +136,7 @@ export default function Home() {
             <div className="flex items-center gap-4">
               {user && (
                 <div className="text-sm text-gray-600 dark:text-gray-400">
-                  Welcome, <span className="font-medium text-gray-800 dark:text-gray-200">{user.firstName || user.emailAddresses[0]?.emailAddress}</span>
+                  Welcome <span className="font-medium text-gray-800 dark:text-gray-200">{user.firstName || user.emailAddresses[0]?.emailAddress}</span>
                 </div>
               )}
               <button

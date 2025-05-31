@@ -91,7 +91,11 @@ const upload = multer({ storage: storage })
 
 const app = express()
 
-app.use(cors());
+const corsOptions = {
+  origin: process.env.FRONTEND_URL || ['http://localhost:3000', 'http://127.0.0.1:3000'],
+  optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
 
 app.get('/', (req,res)=>{
     return res.json({status: "All Good"})

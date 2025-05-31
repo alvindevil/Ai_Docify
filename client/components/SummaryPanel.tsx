@@ -37,7 +37,7 @@ export default function SummaryPanel({ summary, isLoading, error }: SummaryPanel
     return (
       <Card>
         <CardContent className="pt-6">
-          <p className="text-gray-500">Select a PDF and click "Generate Summary" to see the summary here.</p>
+          <p className="text-gray-500">Select a PDF and click Generate Summary to see the summary here.</p>
         </CardContent>
       </Card>
     );
