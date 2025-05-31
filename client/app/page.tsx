@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react'; // Import Suspense
 import { useUser, UserButton } from '@clerk/nextjs';
 import FileUpload from '@/components/file-upload';
 import PdfQueuePanel from '@/components/PdfQueuePanel';
@@ -10,15 +10,19 @@ import NotesPanel from '@/components/NotesPanel';
 import ChatComponent from '@/components/chat';
 import { Button } from '@/components/ui/button';
 import LandingPage from '@/LandingPage_comp/LandingPage/index';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
 type AppState = 'landing' | 'main';
 
-export default function Home() {
+// Create a new component to contain the logic that uses useSearchParams
+function PageContent() {
   const { isSignedIn, user } = useUser();
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams(); // This hook causes the issue without Suspense
+
   const [darkMode, setDarkMode] = useState(false);
   const [currentView, setCurrentView] = useState<AppState>('landing');
   
@@ -39,6 +43,31 @@ export default function Home() {
       setCurrentView('landing');
     }
   }, [isSignedIn]);
+
+  // This useEffect uses searchParams and is a likely cause for the build error
+  useEffect(() => {
+    if (pathname === '/' && searchParams?.get('view') === 'main' && isSignedIn) {
+      // Logic to switch to main view if applicable (already handled by currentView state)
+      return;
+    }
+
+    if (pathname === '/' && searchParams?.get('scrollToUpload') === 'true') {
+      setTimeout(() => {
+        const possibleIds = ['uploadSection', 'upload-section', 'upload', 'file-upload'];
+        let uploadSection = null;
+        
+        for (const id of possibleIds) {
+          uploadSection = document.getElementById(id);
+          if (uploadSection) break;
+        }
+        
+        if (uploadSection) {
+          uploadSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    }
+  }, [pathname, searchParams, isSignedIn]);
+
 
   useEffect(() => {
     setSummaryText(null);
@@ -87,11 +116,8 @@ export default function Home() {
     setSummaryError(null);
 
     try {
-      // Construct the request URL using the BACKEND_URL variable
-      const requestUrl = `<span class="math-inline">\{BACKEND\_URL\}/api/summarize?fileName\=</span>{encodeURIComponent(selectedPdf)}`;
-      // console.log("Client: Requesting summary from URL:", requestUrl);
-
-      const response = await fetch(requestUrl); // This is where the HTML might be coming from
+      const requestUrl = `${BACKEND_URL}/api/summarize?fileName=${encodeURIComponent(selectedPdf)}`;
+      const response = await fetch(requestUrl);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -299,5 +325,13 @@ export default function Home() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}> {/* Or any loading spinner/skeleton component */}
+      <PageContent />
+    </Suspense>
   );
 }

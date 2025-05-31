@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import { Inter } from 'next/font/google';
 import Navbar from '../Navbar/Navbar';
 import VideoPage from '../VideoPage/index';
-import styles from './index.module.css'; 
+/* import styles from './index.module.css';  */
 
 const inter = Inter({ subsets: ['latin'] });
 
