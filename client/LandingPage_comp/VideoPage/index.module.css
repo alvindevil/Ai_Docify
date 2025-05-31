@@ -1,0 +1,188 @@
+.videoSection {
+  padding: 60px 0;
+  /* Background color is now applied dynamically in the component */
+}
+
+/* Theme-based styles */
+.darkMode.videoSection {
+  background-color: #121212;
+}
+
+.lightMode.videoSection {
+  background-color: #f9f9f9;
+}
+
+.darkMode .title {
+  color: #6a3dd2; /* Dark mode primary color */
+}
+
+.lightMode .title {
+  color: #6a3dd2; /* Light mode primary color */
+}
+
+.darkMode .description,
+.darkMode .featureDescription {
+  color: #e0e0e0;
+}
+
+.lightMode .description,
+.lightMode .featureDescription {
+  color: #333;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.flexContainer {
+  display: flex;
+  gap: 40px;
+  align-items: center;
+}
+
+/* Left side - Video */
+.videoWrapper {
+  flex: 0 0 58%;
+  max-width: 58%;
+}
+
+.videoContainer {
+  width: 100%;
+  position: relative;
+}
+
+.videoPaper {
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.video {
+  width: 100%;
+  aspect-ratio: 16/9;
+  display: block;
+}
+
+.videoControls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.controlButton {
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.controlButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+}
+
+/* Right side - Content */
+.contentWrapper {
+  flex: 0 0 42%;
+  max-width: 42%;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  /* Color is now applied through theme classes */
+}
+
+.description {
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  /* Color is now applied through theme classes */
+}
+
+.featuresList {
+  margin-bottom: 2rem;
+}
+
+.featureItem {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.featureNumber {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #7c4dff; /* This could also be dynamically applied */
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  margin-top: 0.2rem;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.featureContent {
+  flex: 1;
+}
+
+.featureTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem 0;
+}
+
+.featureDescription {
+  font-size: 0.9rem;
+  margin: 0;
+  /* Color is now applied through theme classes */
+}
+
+.ctaButton {
+  background-color: #7c4dff;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.ctaButton:hover {
+  background-color: #6a3dd2;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .flexContainer {
+    flex-direction: column;
+  }
+
+  .videoWrapper,
+  .contentWrapper {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .videoWrapper {
+    margin-bottom: 30px;
+  }
+}
