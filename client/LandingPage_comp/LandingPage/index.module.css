@@ -1,0 +1,328 @@
+html {
+  scroll-behavior: smooth;
+}
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: auto !important;
+}
+/* Light/Dark Mode Base Styles */
+.lightMode {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.darkMode {
+  background-color: #121212;
+  color: #ffffff;
+}
+.canvas-container {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+.wrapper {
+  scroll-snap-type: y mandatory;
+  height: 100vh;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+.snapSection {
+  scroll-snap-align: start;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.hyperspeedBackground {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+.pageContent {
+  position: relative;
+  z-index: 1;
+}
+
+.hyperspeedBackground {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none; /* So background does not block button clicks */
+  opacity: 0.6; /* Optional: to make stars subtle */
+  filter: blur(1px); /* Optional: blur background for premium look */
+}
+
+/* AppBar Styles - Reduced height */
+.appBar {
+  padding: 0.5rem 0;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  min-height: 50px; /* Decreased from 64px */
+}
+
+/* Logo Styles */
+.logoContainer {
+  display: flex;
+  align-items: center;
+}
+
+/* Custom Logo Styles */
+.logoIcon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  position: relative;
+}
+
+/* Sun Logo */
+.sunLogo {
+  width: 24px;
+  height: 24px;
+  background-color: #fdb813;
+  border-radius: 50%;
+  position: relative;
+}
+
+.sunRays {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+.sunRays::before,
+.sunRays::after {
+  content: "";
+  position: absolute;
+}
+
+.sunRays::before {
+  width: 36px;
+  height: 4px;
+  background-color: #fdb813;
+  top: 10px;
+  left: -6px;
+  box-shadow: 0 -10px 0 -1px #fdb813, 0 10px 0 -1px #fdb813;
+}
+
+.sunRays::after {
+  width: 4px;
+  height: 36px;
+  background-color: #fdb813;
+  top: -6px;
+  left: 10px;
+  box-shadow: -10px 0 0 -1px #fdb813, 10px 0 0 -1px #fdb813;
+}
+
+/* Moon Logo */
+.moonLogo {
+  width: 24px;
+  height: 24px;
+  background-color: #e6e6e6;
+  border-radius: 50%;
+  position: relative;
+  box-shadow: -3px 0 0 #121212;
+  margin-left: 6px;
+}
+
+.moonCrater1,
+.moonCrater2,
+.moonCrater3 {
+  position: absolute;
+  background-color: #d1d1d1;
+  border-radius: 50%;
+}
+
+.moonCrater1 {
+  width: 6px;
+  height: 6px;
+  top: 5px;
+  right: 7px;
+}
+
+.moonCrater2 {
+  width: 4px;
+  height: 4px;
+  bottom: 7px;
+  right: 3px;
+}
+
+.moonCrater3 {
+  width: 5px;
+  height: 5px;
+  bottom: 3px;
+  left: 7px;
+}
+
+.logoText {
+  font-weight: 600;
+  font-size: 1.5rem;
+}
+
+/* Menu Styles */
+.menuItems {
+  display: flex;
+  gap: 2rem;
+}
+
+.menuItem {
+  cursor: pointer;
+  font-weight: 500;
+  padding: 0.25rem 0; /* Reduced from 0.5rem */
+}
+
+/* Divider - Always Visible */
+.divider {
+  width: 100%;
+  height: 1px;
+}
+
+.lightMode .divider {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.darkMode .divider {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Action Buttons */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.themeToggle {
+  color: inherit;
+}
+
+/* Hide menu button on large screens (handled via JS) */
+.menuButton {
+  display: none;
+}
+
+/* Hero Section - Reduced top padding */
+.heroContainer {
+  padding: 3rem 1rem 6rem; /* Reduced top padding from 6rem to 3rem */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.heroContent {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.heroTitle {
+  font-size: 2rem !important;
+  font-weight: 800 !important;
+  margin-bottom: 2rem !important; /* Reduced from 3rem */
+  line-height: 1.2 !important;
+  margin-top: 0 !important;
+}
+
+.highlight {
+  color: #7c4dff;
+}
+
+.mainheadline {
+  font-size: 2.5rem;
+  font-weight: bold;
+
+  margin-bottom: 0.5rem !important; /* Reduced from 1rem */
+  line-height: 1.2 !important;
+  margin-top: 0 !important;
+}
+
+.heroSubtitle {
+  font-size: 1.25rem !important;
+  margin-bottom: 2.5rem !important; /* Reduced from 3.5rem */
+  font-weight: 400 !important;
+  margin-top: 2.5rem !important;
+}
+
+/* CTA Button */
+.ctaButton {
+  border-radius: 4px !important;
+  padding: 0.75rem 2rem !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  margin-bottom: 3rem !important; /* Reduced from 4rem */
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  background-color: #7c4dff !important;
+  color: white !important;
+  box-shadow: none !important;
+}
+
+.ctaButton:hover {
+  background-color: #6a3dd2 !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+.arrowIcon {
+  margin-left: 8px;
+  display: inline-block;
+}
+
+.testimonial {
+  font-size: 1.125rem !important;
+  opacity: 0.8;
+  margin-top: 1.8rem !important;
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 900px) {
+  .menuItems {
+    display: none;
+  }
+
+  .menuButton {
+    display: block;
+  }
+
+  .heroTitle {
+    font-size: 2.25rem !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .heroTitle {
+    font-size: 1.75rem !important;
+  }
+
+  .heroSubtitle {
+    font-size: 1rem !important;
+  }
+
+  .ctaButton {
+    font-size: 0.9rem !important;
+  }
+}

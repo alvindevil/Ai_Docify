@@ -2,7 +2,6 @@
 import * as React from 'react'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
-
 interface Doc {
     pageContent?: string;
     metadata?: {
@@ -47,9 +46,9 @@ export default function ChatComponent() {
     };
 
     return (
-        <div className="p-4 flex flex-col w-auto h-[60%]  h-max-[100%] overflow-auto">
+        <div className="p-4 flex flex-col w-full h-full max-h-full overflow-auto">
             {/* Chat Messages */}
-            <div className="flex-1 w-[100%] overflow-y-auto mb-4 bg-gray-100 p-4 rounded-lg shadow-inner">
+            <div className="w-full min-h-[300px] max-h-[500px] overflow-y-auto mb-4 bg-gray-100 p-4 rounded-lg shadow-inner">
                 {messages.map((message, index) => (
                     <div
                         key={index}
@@ -69,11 +68,11 @@ export default function ChatComponent() {
             </div>
 
             {/* Input Section */}
-            <div className="flex items-center  bottom-4 w-[100%] bg-white p-2 rounded-lg shadow-lg">
+            <div className="flex items-center w-full bg-white p-2 rounded-lg shadow-lg">
                 <Input
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    onKeyDown={handleKeyDown} // Add this line
+                    onKeyDown={handleKeyDown}
                     placeholder="Type your message here"
                     className="flex-1"
                 />

@@ -4,6 +4,7 @@ import { useRef } from 'react';
 import { Inter } from 'next/font/google';
 import Navbar from '../Navbar/Navbar';
 import VideoPage from '../VideoPage/index';
+import styles from './index.module.css'; 
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -42,13 +43,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ darkMode, toggleDarkMode, onG
                 See how you can save 4+ hours on your next study session below.
               </p>
               
-              <button
-                onClick={onGetStarted} // This will now call the function to show main app
-                className="inline-flex items-center px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
+             <button
+                onClick={onGetStarted}
+                  className="inline-flex items-center px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg text-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
               >
-                GET STARTED
-                <span className="ml-2 text-xl">→</span>
+               GET STARTED
+              <span className="ml-2 text-xl">→</span>
               </button>
+
               
               <p className="mt-6 text-lg text-gray-700 dark:text-gray-400">
                 Meet AiDocify - Your Study sidekick just leveled up!
