@@ -127,7 +127,7 @@ export default function AuthPage() {
               Welcome back!
             </h1>
             <p className={`text-center ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-              You're successfully signed in to AiDocify. Ready to analyze some documents?
+              You are successfully signed in to AiDocify. Ready to analyze some documents?
             </p>
           </div>
 
