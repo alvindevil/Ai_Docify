@@ -181,7 +181,7 @@ const corsOptions = {
     optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Handle preflight requests
+/* app.options('*', cors(corsOptions)); */ // Handle preflight requests
 
 // --- Routes ---
 app.get('/', (req, res) => {
