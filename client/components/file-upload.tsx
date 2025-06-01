@@ -59,7 +59,7 @@ export default function FileUpload({ onFileUploaded }: Props) {
           <div className="group-hover:text-black scale-140">
             <FileUp/>
           </div>
-          <p className="mt-2 text-sm text-gray-500">Upload your PDF here</p>
+          <p className="mt-2 text-sm text-gray-700">Upload your PDF here</p>
         </div>
 
   )

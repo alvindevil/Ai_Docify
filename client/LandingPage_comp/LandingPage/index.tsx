@@ -11,7 +11,7 @@ const inter = Inter({ subsets: ['latin'] });
 interface LandingPageProps {
   darkMode: boolean;
   toggleDarkMode: () => void;
-  onGetStarted: () => void; // Add this prop to handle navigation to main app
+  onGetStarted: () => void;
 }
 
 const LandingPage: React.FC<LandingPageProps> = ({ darkMode, toggleDarkMode, onGetStarted }) => {
@@ -43,20 +43,18 @@ const LandingPage: React.FC<LandingPageProps> = ({ darkMode, toggleDarkMode, onG
                 See how you can save 4+ hours on your next study session below.
               </p>
               
-             <button
+              <button
                 onClick={onGetStarted}
-                  className="inline-flex items-center px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg text-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
+                className="inline-flex items-center px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg text-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
               >
-               GET STARTED
-              <span className="ml-2 text-xl">→</span>
+                GET STARTED
+                <span className="ml-2 text-xl">→</span>
               </button>
 
-              
               <p className="mt-6 text-lg text-gray-700 dark:text-gray-400">
                 Meet AiDocify - Your Study sidekick just leveled up!
               </p>
               
-              {/* Optional: Keep the scroll to video functionality */}
               <button
                 onClick={scrollToUploadSection}
                 className="mt-4 inline-flex items-center px-6 py-2 bg-transparent border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-semibold rounded-lg transition-colors duration-200"
@@ -70,7 +68,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ darkMode, toggleDarkMode, onG
 
         {/* Section 2: Video Page */}
         <div className="snap-start h-screen" ref={uploadSectionRef}>
-          <VideoPage />
+          <VideoPage darkMode={darkMode} onGetStarted={onGetStarted} />
         </div>
       </div>
     </div>
