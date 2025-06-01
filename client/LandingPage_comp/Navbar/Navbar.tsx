@@ -23,7 +23,8 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode }) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { isSignedIn } = useUser();
+  const { isSignedIn, isLoaded } = useUser();
+
   
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -67,65 +68,21 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode }) => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
 
+  // FIXED UPLOAD CLICK HANDLER
   const handleUploadClick = () => {
+    if (!isLoaded) return; // wait until user state is ready
+
     if (!isSignedIn) {
-      // If not signed in, redirect to auth page
+      // User is not signed in, redirect to auth page
       router.push('/auth');
       return;
     }
 
-    // If signed in and on landing page, navigate to main app
-    if (pathname === '/' || pathname === '/landing') {
-      router.push('/?view=main');
-      return;
-    }
-
-    // If already on main app, scroll to upload section
-    const possibleIds = ['uploadSection', 'upload-section', 'upload', 'file-upload'];
-    let uploadSection = null;
-    
-    for (const id of possibleIds) {
-      uploadSection = document.getElementById(id);
-      if (uploadSection) break;
-    }
-    
-    if (uploadSection) {
-      uploadSection.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      // If no upload section found, just ensure we're on the main view
-      if (pathname === '/') {
-        window.location.reload(); // This will trigger the main view if signed in
-      }
-    }
-    
-    if (mobileMenuOpen) {
-      setMobileMenuOpen(false);
-    }
+    // User is signed in - simply redirect to home page
+    // Your main page component will automatically show the dashboard view
+    // because isSignedIn is true
+    router.push('/');
   };
-
-  // Check for navigation to main view
-  useEffect(() => {
-    if (pathname === '/' && searchParams?.get('view') === 'main' && isSignedIn) {
-      // This will be handled by your main component's logic
-      return;
-    }
-    
-    if (pathname === '/' && searchParams?.get('scrollToUpload') === 'true') {
-      setTimeout(() => {
-        const possibleIds = ['uploadSection', 'upload-section', 'upload', 'file-upload'];
-        let uploadSection = null;
-        
-        for (const id of possibleIds) {
-          uploadSection = document.getElementById(id);
-          if (uploadSection) break;
-        }
-        
-        if (uploadSection) {
-          uploadSection.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 100);
-    }
-  }, [pathname, searchParams, isSignedIn]);
 
   // Clean up timeout when component unmounts
   useEffect(() => {
@@ -287,12 +244,22 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode }) => {
 
             {/* Actions */}
             <div className="flex items-center space-x-4">
-              <button 
-                onClick={toggleDarkMode}
-                className={`p-2 rounded-lg ${darkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'} transition-colors duration-200`}
-              >
-                {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-              </button>
+             <button
+  onClick={toggleDarkMode}
+  className={`p-2 rounded-xl transition-colors shadow-md ${
+    darkMode
+      ? 'bg-gray-700 hover:bg-gray-600 text-yellow-300'
+      : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+  }`}
+  title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+>
+  {darkMode ? (
+    <Sun className="w-5 h-5" />
+  ) : (
+    <Moon className="w-5 h-5" />
+  )}
+</button>
+
 
               {/* Authentication */}
               <SignedOut>
