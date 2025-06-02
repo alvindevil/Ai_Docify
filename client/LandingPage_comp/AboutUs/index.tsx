@@ -47,6 +47,7 @@ const AboutUs: React.FC<AboutUsProps> = ({ darkMode, toggleDarkMode, onGetStarte
       image: "👩‍💼",
       social: { 
         linkedin: "https://www.linkedin.com/in/shivam-yadav-2666ba253?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+        mail: "https://mail.google.com/mail/?view=cm&fs=1&to=yadavs47334@gmail.com",
         github: "https://github.com/alvindevil",
         instagram: "https://www.instagram.com/shivam_yadav3690?igsh=MTRvcm1qdnZkdzdkZA==", // used Instagram here for lack of Twitter
         whatsapp: "https://wa.me/919519512078"
