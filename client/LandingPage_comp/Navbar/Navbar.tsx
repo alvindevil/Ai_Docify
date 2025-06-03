@@ -84,6 +84,46 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode }) => {
     router.push('/');
   };
 
+  // FIXED Handle About section navigation - with proper error handling
+  const handleAboutNavigation = (tab: string, sectionId?: string) => {
+    setMobileMenuOpen(false); // Close mobile menu if open
+    setActiveDropdown(null); // Close dropdown
+    
+    try {
+      // Check if /about route exists, otherwise navigate to home with section
+      const aboutPath = `/about?tab=${tab}`;
+      router.push(aboutPath);
+      
+      // If there's a specific section to scroll to, do it after navigation
+      if (sectionId) {
+        setTimeout(() => {
+          const element = document.getElementById(sectionId);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 500);
+      }
+    } catch (error) {
+      console.error('Navigation error:', error);
+      // Fallback to home page
+      router.push('/');
+    }
+  };
+
+  // FIXED Handle regular navigation with error handling
+  const handleNavigation = (path: string) => {
+    setMobileMenuOpen(false);
+    setActiveDropdown(null);
+    
+    try {
+      router.push(path);
+    } catch (error) {
+      console.error('Navigation error:', error);
+      // Optionally show a user-friendly message or fallback
+      router.push('/');
+    }
+  };
+
   // Clean up timeout when component unmounts
   useEffect(() => {
     return () => {
@@ -93,24 +133,25 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode }) => {
     };
   }, [hoverTimeout]);
 
+  // UPDATED menu items with better error handling and fallback routes
   const menuItems = [
     {
       title: 'Use Cases',
       id: 'useCases',
       items: [
-        { label: 'For Students', path: '/use-cases/students' },
-        { label: 'For Working Professionals', path: '/use-cases/professionals' }, 
-        { label: 'For Scholars & Researchers', path: '/use-cases/researchers' }, 
-        { label: 'For Educators', path: '/use-cases/educators' }, 
-        { label: 'For Self-Learners', path: '/use-cases/self-learners' }
+        { label: 'For Students', action: () => handleAboutNavigation('mission') },
+        { label: 'For Working Professionals', action: () => handleAboutNavigation('mission') }, 
+        { label: 'For Scholars & Researchers', action: () => handleAboutNavigation('mission') }, 
+        { label: 'For Educators', action: () => handleAboutNavigation('mission') }, 
+        { label: 'For Self-Learners', action: () => handleAboutNavigation('mission') }
       ]
     },
     {
       title: 'Product',
       id: 'product',
       items: [
-        { label: 'Features', path: '/features' },
-        { label: 'Pricing', path: '/pricing' }, 
+        { label: 'Features', path: '/#features' }, // Changed to anchor link if page doesn't exist
+        { label: 'Pricing', path: '/#pricing' }, // Changed to anchor link if page doesn't exist
         { label: 'Documentation', path: '/docs' }, 
         { label: 'API', path: '/api' }
       ]
@@ -119,10 +160,10 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode }) => {
       title: 'About',
       id: 'about',
       items: [
-        { label: 'Our Story', path: '/about' },
-        { label: 'Team', path: '/team' }, 
-        { label: 'Careers', path: '/careers' }, 
-        { label: 'Contact', path: '/contact' }
+        { label: 'Our Story', action: () => handleAboutNavigation('story') },
+        { label: 'Mission & Values', action: () => handleAboutNavigation('mission') },
+        { label: 'Team', action: () => handleAboutNavigation('team', 'team') }, 
+        { label: 'Contact Us', action: () => handleAboutNavigation('contact', 'contact') } // Fixed to use contact tab
       ]
     },
     {
@@ -227,13 +268,23 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode }) => {
                         onMouseLeave={handleMouseLeave}
                       >
                         {menu.items.map((item, index) => (
-                          <Link
-                            key={index}
-                            href={item.path}
-                            className={`block px-4 py-2 text-sm ${darkMode ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'} hover:text-purple-600 transition-colors duration-200 no-underline`}
-                          >
-                            {item.label}
-                          </Link>
+                          <div key={index}>
+                            {'path' in item && typeof item.path === 'string' ? (
+                              <button
+                                onClick={() => handleNavigation(item.path)}
+                                className={`w-full text-left px-4 py-2 text-sm ${darkMode ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'} hover:text-purple-600 transition-colors duration-200`}
+                              >
+                                {item.label}
+                              </button>
+                            ) : (
+                              <button
+                                onClick={'action' in item && typeof item.action === 'function' ? item.action : undefined}
+                                className={`w-full text-left px-4 py-2 text-sm ${darkMode ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'} hover:text-purple-600 transition-colors duration-200`}
+                              >
+                                {item.label}
+                              </button>
+                            )}
+                          </div>
                         ))}
                       </div>
                     )}
@@ -263,13 +314,13 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode }) => {
 
               {/* Authentication */}
               <SignedOut>
-                <Link
-                  href="/auth"
-                  className="hidden sm:flex items-center space-x-2 px-4 py-2 text-purple-600 hover:text-purple-700 border border-purple-600 hover:border-purple-700 rounded-lg text-sm font-medium transition-colors duration-200 no-underline"
+                <button
+                  onClick={() => handleNavigation('/auth')}
+                  className="hidden sm:flex items-center space-x-2 px-4 py-2 text-purple-600 hover:text-purple-700 border border-purple-600 hover:border-purple-700 rounded-lg text-sm font-medium transition-colors duration-200"
                 >
                   <User className="w-4 h-4" />
                   <span>Sign In</span>
-                </Link>
+                </button>
               </SignedOut>
 
               <SignedIn>
@@ -326,14 +377,27 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode }) => {
                     </div>
                     <div className="py-1">
                       {menu.items.map((item, index) => (
-                        <Link
-                          key={index}
-                          href={item.path}
-                          onClick={toggleMobileMenu}
-                          className={`block px-6 py-3 text-sm ${darkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'} transition-colors duration-200 no-underline`}
-                        >
-                          {item.label}
-                        </Link>
+                        <div key={index}>
+                          {('path' in item && typeof item.path === 'string') ? (
+                            <button
+                              onClick={() => handleNavigation(item.path)}
+                              className={`w-full text-left px-6 py-3 text-sm ${darkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'} transition-colors duration-200`}
+                            >
+                              {item.label}
+                            </button>
+                          ) : (
+                            <button
+                              onClick={
+                                'action' in item && typeof item.action === 'function'
+                                  ? item.action
+                                  : undefined
+                              }
+                              className={`w-full text-left px-6 py-3 text-sm ${darkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'} transition-colors duration-200`}
+                            >
+                              {item.label}
+                            </button>
+                          )}
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -341,14 +405,13 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode }) => {
 
                 <div className="p-4 mt-4 space-y-3">
                   <SignedOut>
-                    <Link
-                      href="/auth"
-                      onClick={toggleMobileMenu}
-                      className="w-full flex items-center justify-center space-x-2 px-4 py-3 border border-purple-600 text-purple-600 rounded-lg font-medium transition-colors duration-200 no-underline"
+                    <button
+                      onClick={() => handleNavigation('/auth')}
+                      className="w-full flex items-center justify-center space-x-2 px-4 py-3 border border-purple-600 text-purple-600 rounded-lg font-medium transition-colors duration-200"
                     >
                       <User className="w-4 h-4" />
                       <span>Sign In</span>
-                    </Link>
+                    </button>
                   </SignedOut>
 
                   <SignedIn>

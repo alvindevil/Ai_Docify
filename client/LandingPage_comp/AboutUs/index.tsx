@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Inter } from 'next/font/google';
 import { 
   ArrowRight, 
@@ -37,13 +38,22 @@ interface AboutUsProps {
 }
 
 const AboutUs: React.FC<AboutUsProps> = ({ darkMode, toggleDarkMode, onGetStarted }) => {
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState('story');
+
+  // Handle URL parameters to set the active tab
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && ['story', 'mission', 'team'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   const teamMembers = [
     {
       name: "Shivam Yadav",
       role: "Backend Developer & Integrator",
-      bio: "I’m Shivam Yadav, a B.Tech CSE student with a strong foundation in programming, web development, and UI/UX design. I specialize in JavaScript, C++, and the MERN stack, and I’m passionate about integrating AI into modern web applications. I’m actively learning full-stack development and DSA, and I enjoy building practical, user-focused solutions through both academic and hands-on project experience.",
+      bio: "I'm Shivam Yadav, a B.Tech CSE student with a strong foundation in programming, web development, and UI/UX design. I specialize in JavaScript, C++, and the MERN stack, and I'm passionate about integrating AI into modern web applications. I'm actively learning full-stack development and DSA, and I enjoy building practical, user-focused solutions through both academic and hands-on project experience.",
       image: "👩‍💼",
       social: { 
         linkedin: "https://www.linkedin.com/in/shivam-yadav-2666ba253?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
@@ -56,7 +66,7 @@ const AboutUs: React.FC<AboutUsProps> = ({ darkMode, toggleDarkMode, onGetStarte
     {
       name: "Somesh Pratap Singh",
       role: "Frontend Developer & Designer", 
-       bio: "I’m Somesh Pratap Singh, a B.Tech student at the University of Lucknow passionate about frontend development and design. I have experience with HTML, CSS, JavaScript, React, NextJs and UI/UX principles. I enjoy building clean, responsive user interfaces and continually enhance my skills through practical projects and creative exploration.",
+       bio: "I'm Somesh Pratap Singh, a B.Tech student at the University of Lucknow passionate about frontend development and design. I have experience with HTML, CSS, JavaScript, React, NextJs and UI/UX principles. I enjoy building clean, responsive user interfaces and continually enhance my skills through practical projects and creative exploration.",
       image: "👨‍💻",
       social: { 
         whatsapp: "https://wa.me/919026406277",
