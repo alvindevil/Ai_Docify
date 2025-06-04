@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Play, Pause, Volume2, VolumeX } from 'lucide-react';
+import { Play } from 'lucide-react';
+ // Replace with actual video path
 
 interface VideoPageProps {
   darkMode?: boolean;
@@ -9,8 +10,8 @@ interface VideoPageProps {
 }
 
 const VideoPage: React.FC<VideoPageProps> = ({ darkMode = false, onGetStarted }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(true);
 
   const features = [
     {
@@ -47,17 +48,21 @@ const VideoPage: React.FC<VideoPageProps> = ({ darkMode = false, onGetStarted })
             <div className="relative">
               <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-xl shadow-xl overflow-hidden border`}>
                 <div className="relative aspect-video">
-                  <iframe
-                    className="w-full h-full"
-                    src={`https://www.youtube.com/embed/ou-litQ9hWQ?autoplay=${isPlaying ? 1 : 0}&mute=${isMuted ? 1 : 0}&controls=0&rel=0&showinfo=0&modestbranding=1`}
-                    title="AiDocify Demo"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
+                  <div className="aspect-w-32 aspect-h-18">
+                    <video
+                      className="w-full h-full cursor-pointer"
+                      controls
+                      autoPlay={isPlaying}
+                      muted={!isMuted}
+                      loop
+                    >
+                      <source src="/DemoVideo.mp4" type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                  </div>
 
                   {/* Custom video controls overlay */}
-                  <div className="absolute bottom-3 left-3 flex items-center space-x-2">
+                  {/* <div className="absolute bottom-3 left-3 flex items-center space-x-2">
                     <button 
                       className="flex items-center justify-center w-10 h-10 bg-black bg-opacity-70 hover:bg-opacity-90 text-white rounded-full transition-all duration-200 backdrop-blur-sm"
                       onClick={() => setIsPlaying(!isPlaying)}
@@ -73,7 +78,7 @@ const VideoPage: React.FC<VideoPageProps> = ({ darkMode = false, onGetStarted })
                     >
                       {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
                     </button>
-                  </div>
+                  </div> */}
 
                   {/* Play button overlay for initial state */}
                   {!isPlaying && (

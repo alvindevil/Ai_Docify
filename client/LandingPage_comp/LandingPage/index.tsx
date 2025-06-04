@@ -52,7 +52,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ darkMode, toggleDarkMode, onG
               
               <button
                 onClick={onGetStarted}
-                className="inline-flex items-center px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg text-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
+                className="inline-flex items-center px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg text-lg transition-colors duration-200 shadow-lg hover:shadow-xl cursor-pointer"
               >
                 GET STARTED
                 <span className="ml-2 text-xl">→</span>
@@ -65,7 +65,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ darkMode, toggleDarkMode, onG
               <div className="flex flex-wrap justify-center gap-4 mt-4">
                 <button
                   onClick={scrollToUploadSection}
-                  className="inline-flex items-center px-6 py-2 bg-transparent border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-semibold rounded-lg transition-colors duration-200"
+                  className="inline-flex items-center px-6 py-2 bg-transparent border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-semibold rounded-lg transition-colors duration-200 cursor-pointer"
                 >
                   Watch Demo
                   <span className="ml-2">↓</span>
@@ -73,7 +73,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ darkMode, toggleDarkMode, onG
                 
                 <button
                   onClick={scrollToAboutSection}
-                  className="inline-flex items-center px-6 py-2 bg-transparent border border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white font-semibold rounded-lg transition-colors duration-200"
+                  className="inline-flex items-center px-6 py-2 bg-transparent border border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white font-semibold rounded-lg transition-colors duration-200 cursor-pointer"
                 >
                   Learn More
                   <span className="ml-2">↓</span>

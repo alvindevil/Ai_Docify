@@ -214,7 +214,7 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode }) => {
         <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link href="/" className="flex items-center space-x-3 no-underline">
+            <Link href="/" className="flex items-center space-x-3 no-underline cursor-pointer">
               <div className="flex items-center space-x-3">
                 <div className="w-7.5 h-7.5 relative">
                   {darkMode ? (
@@ -243,7 +243,7 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode }) => {
 
             {/* Desktop Menu */}
             {!isMobile && (
-              <div className="hidden md:flex items-center space-x-8">
+              <div className="hidden md:flex items-center space-x-8 ">
                 {menuItems.map((menu) => (
                   <div 
                     key={menu.id}
@@ -297,7 +297,7 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode }) => {
             <div className="flex items-center space-x-4">
              <button
   onClick={toggleDarkMode}
-  className={`p-2 rounded-xl transition-colors shadow-md ${
+  className={`p-2 rounded-xl transition-colors shadow-md cursor-pointer ${
     darkMode
       ? 'bg-gray-700 hover:bg-gray-600 text-yellow-300'
       : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
@@ -316,9 +316,9 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode }) => {
               <SignedOut>
                 <button
                   onClick={() => handleNavigation('/auth')}
-                  className="hidden sm:flex items-center space-x-2 px-4 py-2 text-purple-600 hover:text-purple-700 border border-purple-600 hover:border-purple-700 rounded-lg text-sm font-medium transition-colors duration-200"
+                  className="hidden sm:flex items-center space-x-2 px-4 py-2 text-purple-600 hover:text-purple-700 border border-purple-600 hover:border-purple-700 rounded-lg text-sm font-medium transition-colors duration-200 cursor-pointer"
                 >
-                  <User className="w-4 h-4" />
+                  <User className="w-4 h-4 cursor-pointer" />
                   <span>Sign In</span>
                 </button>
               </SignedOut>
@@ -329,7 +329,7 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode }) => {
 
               <button 
                 onClick={scrollToUploadSection}
-                className="hidden sm:flex items-center space-x-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors duration-200"
+                className="hidden sm:flex items-center space-x-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors duration-200 cursor-pointer"
               >
                 <span>Upload PDF</span>
                 <ArrowRight className="w-4 h-4" />

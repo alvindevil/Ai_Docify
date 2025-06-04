@@ -77,13 +77,13 @@ export default function AuthPage() {
           {/* Auth Buttons */}
           <div className="flex flex-col gap-3 w-full">
             <SignInButton mode="modal">
-              <button className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:scale-105">
+              <button className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer">
                 🔑 Sign In
               </button>
             </SignInButton>
             
             <SignUpButton mode="modal">
-              <button className="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:scale-105">
+              <button className="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer">
                 ✨ Sign Up
               </button>
             </SignUpButton>
