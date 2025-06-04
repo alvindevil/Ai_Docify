@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react'; // Import useState and useEffect
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface SummaryPanelProps {
@@ -8,6 +8,20 @@ interface SummaryPanelProps {
 }
 
 export default function SummaryPanel({ summary, isLoading, error }: SummaryPanelProps) {
+  const [clientTime, setClientTime] = useState<string | null>(null);
+
+  useEffect(() => {
+    // This effect runs only on the client-side after hydration
+    if (summary && !isLoading && !error) {
+      setClientTime(new Date().toLocaleTimeString());
+    }
+    // Reset time if summary disappears or there's an error/loading state change
+    // This ensures the timestamp only shows with a valid, current summary
+    return () => {
+      setClientTime(null); 
+    };
+  }, [summary, isLoading, error]); // Rerun if these props change
+
   if (isLoading) {
     return (
       <div className="w-full">
@@ -83,14 +97,16 @@ export default function SummaryPanel({ summary, isLoading, error }: SummaryPanel
         <CardContent>
           <div className="bg-white/70 dark:bg-gray-900/50 border border-green-200/50 dark:border-green-800/50 rounded-lg p-4 shadow-sm">
             <div className="prose prose-sm dark:prose-invert max-w-none">
-              <pre className="whitespace-pre-wrap font-sans text-gray-800 dark:text-gray-200 leading-relaxed text-sm overflow-x-auto">
-{summary}
-              </pre>
+              {/* Using a div for the summary text with pre-wrap for potentially better control with prose if needed */}
+              <div className="whitespace-pre-wrap font-sans text-gray-800 dark:text-gray-200 leading-relaxed text-sm overflow-x-auto">
+                {summary}
+              </div>
             </div>
           </div>
           <div className="mt-3 flex justify-between items-center text-xs text-green-600 dark:text-green-400">
             <span>Summary completed successfully</span>
-            <span>{new Date().toLocaleTimeString()}</span>
+            {/* Render clientTime only if it's set (i.e., on the client after mount) */}
+            {clientTime && <span>{clientTime}</span>}
           </div>
         </CardContent>
       </Card>
