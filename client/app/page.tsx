@@ -448,7 +448,9 @@ function PageContent() {
 }
 export default function Home() {
   return (
+
     <Suspense fallback={<div>Loading...</div>}> {/* Or any loading spinner/skeleton component */}
+    
       <PageContent />
     </Suspense>
   );
