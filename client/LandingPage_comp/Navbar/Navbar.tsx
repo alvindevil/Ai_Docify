@@ -216,27 +216,7 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode }) => {
             {/* Logo */}
             <Link href="/" className="flex items-center space-x-3 no-underline cursor-pointer">
               <div className="flex items-center space-x-3">
-                <div className="w-7.5 h-7.5 relative">
-                  {darkMode ? (
-                    <div className="w-full h-full bg-gray-300 rounded-full relative">
-                      <div className="absolute w-2 h-2 bg-gray-600 rounded-full top-1 left-2"></div>
-                      <div className="absolute w-1 h-1 bg-gray-600 rounded-full top-3 right-2"></div>
-                      <div className="absolute w-1.5 h-1.5 bg-gray-600 rounded-full bottom-2 left-3"></div>
-                    </div>
-                  ) : (
-                    <div className="w-full h-full bg-yellow-400 rounded-full relative flex items-center justify-center">
-                      <div className="absolute inset-0">
-                        {[...Array(8)].map((_, i) => (
-                          <div
-                            key={i}
-                            className="navbar-sunray"
-                            data-rotate={i * 45}
-                          ></div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
+                <img src={"/favicon.png"} className='w-12 h-14'  ></img>
                 <span className="text-xl font-bold">AiDocify</span>
               </div>
             </Link>

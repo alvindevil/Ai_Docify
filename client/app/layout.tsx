@@ -16,6 +16,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "AiDocify - AI-Powered PDF Analysis",
   description: "Upload PDFs to instantly get AI-Powered Summaries, Notes, and Assignments",
+  icons: {
+    icon: '/favicon.png', // This path assumes favicon.png is directly in the 'public' folder
+  },
 };
 
 export default function RootLayout({
