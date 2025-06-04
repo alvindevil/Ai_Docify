@@ -75,7 +75,7 @@ export default function SummaryPanel({ summary, isLoading, error }: SummaryPanel
           <div className="text-center space-y-2">
             <div className="text-4xl mb-3">📋</div>
             <p className="text-gray-600 dark:text-gray-300 font-medium">
-              Select a PDF and click "Generate Summary" to see the summary here.
+              Select a PDF and click Generate Summary to see the summary here.
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-400">
               Upload a document from the sidebar to get started
