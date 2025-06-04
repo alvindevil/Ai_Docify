@@ -5,6 +5,8 @@ import { Inter } from 'next/font/google';
 import Navbar from '../Navbar/Navbar';
 import VideoPage from '../VideoPage/index';
 /* import styles from './index.module.css';  */
+import AboutUs from '../AboutUs/index';
+import styles from './index.module.css'; 
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -16,9 +18,14 @@ interface LandingPageProps {
 
 const LandingPage: React.FC<LandingPageProps> = ({ darkMode, toggleDarkMode, onGetStarted }) => {
   const uploadSectionRef = useRef<HTMLDivElement>(null);
+  const aboutSectionRef = useRef<HTMLDivElement>(null);
 
   const scrollToUploadSection = () => {
     uploadSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const scrollToAboutSection = () => {
+    aboutSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
@@ -55,13 +62,23 @@ const LandingPage: React.FC<LandingPageProps> = ({ darkMode, toggleDarkMode, onG
                 Meet AiDocify - Your Study sidekick just leveled up!
               </p>
               
-              <button
-                onClick={scrollToUploadSection}
-                className="mt-4 inline-flex items-center px-6 py-2 bg-transparent border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-semibold rounded-lg transition-colors duration-200"
-              >
-                Watch Demo
-                <span className="ml-2">↓</span>
-              </button>
+              <div className="flex flex-wrap justify-center gap-4 mt-4">
+                <button
+                  onClick={scrollToUploadSection}
+                  className="inline-flex items-center px-6 py-2 bg-transparent border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-semibold rounded-lg transition-colors duration-200"
+                >
+                  Watch Demo
+                  <span className="ml-2">↓</span>
+                </button>
+                
+                <button
+                  onClick={scrollToAboutSection}
+                  className="inline-flex items-center px-6 py-2 bg-transparent border border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white font-semibold rounded-lg transition-colors duration-200"
+                >
+                  Learn More
+                  <span className="ml-2">↓</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -69,6 +86,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ darkMode, toggleDarkMode, onG
         {/* Section 2: Video Page */}
         <div className="snap-start h-screen" ref={uploadSectionRef}>
           <VideoPage darkMode={darkMode} onGetStarted={onGetStarted} />
+        </div>
+
+        {/* Section 3: About Us */}
+        <div className="snap-start min-h-screen" ref={aboutSectionRef}>
+          <AboutUs darkMode={darkMode} toggleDarkMode={toggleDarkMode} onGetStarted={onGetStarted} />
         </div>
       </div>
     </div>
