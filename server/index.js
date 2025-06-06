@@ -4,226 +4,224 @@ import multer from 'multer';
 import { Queue, Worker } from 'bullmq';
 import { OpenAIEmbeddings } from '@langchain/openai';
 import { QdrantVectorStore } from '@langchain/qdrant';
+import { QdrantClient } from '@qdrant/js-client-rest';
 import { OpenAI } from 'openai';
 import dotenv from 'dotenv';
 import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
+import fs from 'fs/promises';
+import os from 'os';
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { v2 as cloudinary } from 'cloudinary';
 import streamifier from 'streamifier';
-import fetch from 'node-fetch';
+import axios from 'axios';
 
 dotenv.config();
 
-// --- PATH AND DIRECTORY SETUP ---
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-console.log(`[Server Startup] Script directory: ${__dirname}`);
+// --- SERVICE AND CLIENT CONFIGURATION ---
 
-const ephemeralTempPath = path.join(__dirname, 'uploads_temp_ephemeral');
-if (!fs.existsSync(ephemeralTempPath)) {
-    fs.mkdirSync(ephemeralTempPath, { recursive: true });
-    console.log(`[Server Startup] Ephemeral temp directory created at: ${ephemeralTempPath}`);
-}
-
-// --- CLOUDINARY CONFIG ---
 cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-    secure: true,
-});
-console.log('[Server Startup] Cloudinary configured.');
-
-// --- OPENAI CLIENT ---
-const openAIClient = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+  secure: true,
 });
 
-// --- BULLMQ QUEUE & WORKER CONFIG ---
-const queueName = 'file-upload-queue';
-const redisConnection = process.env.REDIS_URL || {
-    host: process.env.REDIS_HOST || 'localhost',
-    port: parseInt(process.env.REDIS_PORT || "6379", 10),
-    password: process.env.REDIS_PASSWORD || undefined,
-};
-console.log(`[Server Startup] BullMQ connecting to Redis: ${process.env.REDIS_URL ? 'via URL' : 'via Host/Port'}`);
+const openAIClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-const fileUploadQueue = new Queue(queueName, { connection: redisConnection });
-console.log(`[Server Startup] BullMQ Queue '${queueName}' initialized.`);
+const redisConnection = process.env.REDIS_URL || { host: 'localhost', port: 6379 };
+const qdrantUrl = process.env.QDRANT_URL || 'http://localhost:6333';
+const qdrantCollectionName = 'ai_docs';
 
-// --- INTEGRATED BULLMQ WORKER ---
-console.log('[Server Startup] Initializing integrated BullMQ Worker...');
-const worker = new Worker(queueName, async (job) => {
-    const { cloudinaryPublicId, cloudinarySecureUrl, originalFileName } = job.data;
-    console.log(`[Worker] Processing job ${job.id} for: ${originalFileName} (${cloudinaryPublicId})`);
-    let tempFilePathWorker = null;
+// --- BULLMQ QUEUE DEFINITION (FIX: Ensure this is defined before it's used) ---
+console.log('[Server Setup] Initializing BullMQ file upload queue...');
+const fileUploadQueue = new Queue('file-upload-queue', { connection: redisConnection });
+console.log('[Server Setup] BullMQ queue initialized.');
+
+
+// --- BULLMQ WORKER SETUP ---
+
+const worker = new Worker('file-upload-queue', async job => {
+    const { cloudinaryUrl, originalName, publicId } = job.data;
+    console.log(`[Worker] Processing job for: ${originalName} (Public ID: ${publicId})`);
+    
+    // Create a temporary local path, replacing slashes in publicId to avoid subdir issues on some OS
+    const tempFilePath = path.join(os.tmpdir(), publicId.replace(/[\/\\]/g, '_'));
+
     try {
-        const urlToFetch = cloudinarySecureUrl || cloudinary.url(cloudinaryPublicId, { resource_type: "raw" });
-        const response = await fetch(urlToFetch);
-        if (!response.ok) throw new Error(`Download failed (${response.status})`);
-        const pdfBuffer = await response.arrayBuffer();
-        const safeOriginalFileName = originalFileName.replace(/[^a-zA-Z0-9.-]/g, '_');
-        tempFilePathWorker = path.join(ephemeralTempPath, `${Date.now()}-worker-${safeOriginalFileName}`);
-        await fs.promises.writeFile(tempFilePathWorker, Buffer.from(pdfBuffer));
+        await fs.mkdir(path.dirname(tempFilePath), { recursive: true });
+        
+        console.log(`[Worker] Downloading from Cloudinary URL: ${cloudinaryUrl}`);
+        const response = await axios.get(cloudinaryUrl, { responseType: 'arraybuffer' });
+        await fs.writeFile(tempFilePath, Buffer.from(response.data));
+        console.log(`[Worker] File downloaded to temporary path: ${tempFilePath}`);
 
-        const loader = new PDFLoader(tempFilePathWorker);
+        const loader = new PDFLoader(tempFilePath);
         const docs = await loader.load();
-        if (!docs?.length) {
-            console.warn(`[Worker] No content from PDF: ${originalFileName}. Skipping Qdrant.`);
-            return;
+        if (!docs || docs.length === 0) throw new Error(`No content extracted from PDF: ${originalName}`);
+
+        const documentsWithMetadata = docs.map(doc => {
+            doc.metadata = { ...doc.metadata, source: publicId, original_filename: originalName };
+            return doc;
+        });
+
+        const qdrantClient = new QdrantClient({ url: qdrantUrl });
+        
+        const collections = await qdrantClient.getCollections();
+        const collectionExists = collections.collections.some(c => c.name === qdrantCollectionName);
+        if (!collectionExists) {
+            await qdrantClient.createCollection(qdrantCollectionName, { vectors: { size: 1536, distance: 'Cosine' } });
+            console.log(`[Worker] Created Qdrant collection: ${qdrantCollectionName}`);
+            
+            // Also ensure index exists for the new collection
+            await qdrantClient.createPayloadIndex(qdrantCollectionName, { field_name: 'source', field_schema: 'keyword' });
+            console.log("[Worker] Payload index for 'source' field created.");
         }
         
-        const docsWithMetadata = docs.map((doc, index) => ({
-            ...doc,
-            metadata: { ...(doc.metadata || {}), source: cloudinaryPublicId, originalFileName, pageNumber: doc.metadata?.loc?.pageNumber || index + 1 }
-        }));
+        const embeddings = new OpenAIEmbeddings({ apiKey: process.env.OPENAI_API_KEY });
+        await QdrantVectorStore.fromDocuments(documentsWithMetadata, embeddings, { client: qdrantClient, collectionName: qdrantCollectionName });
+        console.log(`[Worker] Successfully stored embeddings for: ${originalName}`);
 
-        const embeddings = new OpenAIEmbeddings({ apiKey: process.env.OPENAI_API_KEY, modelName: "text-embedding-3-small" });
-        await QdrantVectorStore.fromDocuments(docsWithMetadata, embeddings, {
-            url: process.env.QDRANT_URL || 'http://localhost:6333',
-            collectionName: 'Ai_Docs',
-        });
-        console.log(`[Worker] Job ${job.id}: Docs from ${originalFileName} added to Qdrant.`);
     } catch (error) {
-        console.error(`[Worker] Error processing job ${job.id} for ${originalFileName}:`, error);
+        console.error(`[Worker] Error processing job for ${originalName}:`, error);
         throw error;
     } finally {
-        if (tempFilePathWorker) {
-            try { await fs.promises.unlink(tempFilePathWorker); }
-            catch (e) { console.error(`[Worker] Error deleting temp file ${tempFilePathWorker}:`, e); }
+        try {
+            await fs.unlink(tempFilePath);
+            console.log(`[Worker] Cleaned up temporary file: ${tempFilePath}`);
+        } catch (cleanupError) {
+            if (cleanupError.code !== 'ENOENT') {
+                console.error(`[Worker] Error cleaning up temp file ${tempFilePath}:`, cleanupError);
+            }
         }
     }
-}, { connection: redisConnection, concurrency: 2 });
-worker.on('completed', job => console.log(`[Worker Event] Job ${job.id} completed.`));
-worker.on('failed', (job, err) => console.error(`[Worker Event] Job ${job?.id} failed: ${err.message}`));
-console.log('[Server Startup] BullMQ Worker initialized and listening.');
+}, { connection: redisConnection, concurrency: 5 });
+
+worker.on('completed', job => { console.log(`[Worker] Job ${job.id} for ${job.data.originalName} completed.`); });
+worker.on('failed', (job, err) => { console.error(`[Worker] Job ${job.id} for ${job.data.originalName} failed: ${err.message}`); });
 
 // --- EXPRESS APP SETUP ---
+
 const app = express();
 const PORT = process.env.PORT || 8000;
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
-// CORS
-const feUrl = process.env.FRONTEND_URL;
-const allowedOrigins = ['http://localhost:3000', 'http://127.0.0.1:3000'];
-if (feUrl) {
-    allowedOrigins.push(feUrl.replace(/\/$/, ''));
-}
-console.log('[Server Startup] Allowed CORS origins:', allowedOrigins);
+const allowedOrigins = ['http://localhost:3000', 'http://127.0.0.1:3000', process.env.FRONTEND_URL].filter(Boolean);
 const corsOptions = {
-    origin: (origin, callback) => {
+    origin: function (origin, callback) {
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
-            callback(new Error(`Origin '${origin}' not allowed by CORS`));
+            callback(new Error('Not allowed by CORS'));
         }
     },
-    credentials: true,
 };
 app.use(cors(corsOptions));
-/* app.options('*', cors(corsOptions)); */
+/* app.options('*', cors(corsOptions)); */ 
 
-// --- ROUTES START ---
-console.log('[Server Setup] Defining routes...');
+// --- API ROUTES ---
 
-app.get('/', (req, res) => res.json({ status: "Healthy" }));
+app.get('/', (req, res) => res.json({ status: "Server is healthy." }));
 
-const multerUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 25 * 1024 * 1024 } });
-app.post('/upload/pdf', multerUpload.single('pdf'), async (req, res) => {
-    if (!req.file) return res.status(400).json({ message: 'No file provided.' });
+app.post('/upload/pdf', upload.single('pdf'), (req, res) => {
+    if (!req.file) return res.status(400).json({ message: 'No file uploaded.' });
+    
+    console.log(`[Server /upload/pdf] Received file: ${req.file.originalname}, size: ${req.file.size} bytes`);
+
+    const uploadStream = cloudinary.uploader.upload_stream({ resource_type: 'raw', folder: 'pdfs' },
+        async (error, result) => {
+            if (error) {
+                console.error('[Cloudinary] Upload failed:', error);
+                return res.status(500).json({ message: 'Failed to upload file to cloud storage.' });
+            }
+            
+            console.log(`[Cloudinary] File uploaded. Public ID: ${result.public_id}. Adding job to queue...`);
+            
+            await fileUploadQueue.add('file-ready', { 
+                cloudinaryUrl: result.secure_url, 
+                originalName: req.file.originalname, 
+                publicId: result.public_id 
+            });
+
+            res.json({
+                message: 'File uploaded and queued for processing!',
+                fileName: req.file.originalname,
+                publicId: result.public_id,
+                fileUrl: result.secure_url
+            });
+        }
+    );
+    streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+});
+
+// ... (Rest of your API routes: /api/summarize, /api/get-pdf-preview-url, /chat) ...
+// The helper function and routes from the last update are still good.
+
+// Helper function to get document text from Qdrant
+async function getFullTextFromQdrant(publicId) {
+    const embeddings = new OpenAIEmbeddings({ apiKey: process.env.OPENAI_API_KEY });
+    const vectorStore = await QdrantVectorStore.fromExistingCollection(embeddings, { url: qdrantUrl, collectionName: qdrantCollectionName });
+    
+    const documentChunks = await vectorStore.similaritySearch(" ", 1000, { 
+        filter: { must: [{ key: 'source', match: { value: publicId } }] } 
+    });
+    
+    if (!documentChunks || documentChunks.length === 0) throw new Error(`No text chunks found in Qdrant for document ID: ${publicId}`);
+    
+    documentChunks.sort((a, b) => (a.metadata.page || 0) - (b.metadata.page || 0));
+    return documentChunks.map(doc => doc.pageContent).join("\n\n");
+}
+
+app.get('/api/summarize', async (req, res) => {
+    const { publicId } = req.query;
+    if (!publicId) return res.status(400).json({ message: "publicId query parameter is required." });
+
     try {
-        const safeName = req.file.originalname.replace(/\.pdf$/i, '').replace(/[^a-zA-Z0-9-_]/g, '_');
-
-        // --- THIS IS THE CORRECTED UPLOAD LOGIC ---
-        const result = await new Promise((resolve, reject) => {
-            const stream = cloudinary.uploader.upload_stream(
-                {
-                    resource_type: "raw",
-                    // Use the 'folder' option to specify the directory
-                    folder: "ai_docify_pdfs", 
-                    // Provide just the desired filename part for public_id
-                    public_id: `${Date.now()}-${safeName}`,
-                }, 
-                (err, res) => {
-                    if (err) {
-                        console.error("Cloudinary upload error:", err);
-                        return reject(err);
-                    }
-                    resolve(res);
-                }
-            );
-            streamifier.createReadStream(req.file.buffer).pipe(stream);
-        });
-        // --- END OF CORRECTION ---
-
-        if (!result) throw new Error("Cloudinary upload failed to return a result.");
-        
-        // result.public_id will now correctly be "ai_docify_pdfs/your-file-name"
-        console.log(`[API /upload/pdf] File uploaded to Cloudinary. Public ID: ${result.public_id}`);
-
-        await fileUploadQueue.add('process-pdf', { cloudinaryPublicId: result.public_id, cloudinarySecureUrl: result.secure_url, originalFileName: req.file.originalname });
-        res.json({ message: 'File queued for processing!', fileName: result.public_id });
+        const fullPdfText = await getFullTextFromQdrant(publicId);
+        const prompt = `Kindly generate a concise summary of the following document text.`;
+        const completion = await openAIClient.chat.completions.create({ messages: [{ role: 'system', content: prompt }, { role: 'user', content: fullPdfText }], model: 'gpt-3.5-turbo' });
+        res.json({ summary: completion.choices[0].message.content });
     } catch (error) {
-        console.error('[API /upload/pdf] Error:', error);
-        res.status(500).json({ message: 'Failed to upload file.' });
+        console.error(`[Server /summarize] Error:`, error);
+        res.status(500).json({ message: error.message });
     }
 });
 
 app.get('/api/get-pdf-preview-url', (req, res) => {
     const { publicId } = req.query;
-    if (!publicId || typeof publicId !== 'string') return res.status(400).json({ message: "Query 'publicId' is required." });
+    if (!publicId) return res.status(400).json({ message: 'A valid document publicId is required.' });
     try {
-        // This will now work because the publicId from the frontend includes the folder path
-        const fileUrl = cloudinary.url(publicId, { resource_type: "raw" });
-        res.json({ previewUrl: fileUrl });
+        const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+        if (!cloudName) throw new Error("Cloudinary cloud_name not configured.");
+        const finalPreviewUrl = `https://res.cloudinary.com/${cloudName}/raw/upload/fl_inline/${publicId}`;
+        res.json({ previewUrl: finalPreviewUrl });
     } catch (error) {
-        res.status(500).json({ message: 'Error generating preview URL.' });
+        console.error(`[Server] Error generating preview URL for ${publicId}:`, error);
+        res.status(500).json({ message: 'Failed to generate preview URL.' });
     }
 });
 
 app.get('/chat', async (req, res) => {
-    const { message, pdfId } = req.query;
-    if (!message) return res.status(400).json({ message: "Query 'message' required." });
+    const { message, publicId } = req.query;
+    if (!message || !publicId) return res.status(400).json({ message: "message and publicId are required." });
+
     try {
         const embeddings = new OpenAIEmbeddings({ apiKey: process.env.OPENAI_API_KEY });
-        const vectorStore = await QdrantVectorStore.fromExistingCollection(embeddings, { url: process.env.QDRANT_URL || 'http://localhost:6333', collectionName: 'Ai_Docs' });
-        
-        // This filter is now critical for getting context from the correct PDF
-        const filter = pdfId ? { must: [{ key: "metadata.source", match: { value: pdfId } }] } : undefined;
-        
-        const retriever = vectorStore.asRetriever({ k: 4, filter });
+        const vectorStore = await QdrantVectorStore.fromExistingCollection(embeddings, { url: qdrantUrl, collectionName: qdrantCollectionName });
+        const retriever = vectorStore.asRetriever({ k: 4, filter: { must: [{ key: 'source', match: { value: publicId } }] } });
         const relevantDocs = await retriever.invoke(message);
-
-        if (!relevantDocs.length) return res.json({ message: "I couldn't find information about that in the selected document.", docs: [] });
-
-        const context = relevantDocs.map(doc => doc.pageContent).join("\n---\n");
-        const prompt = `You are a helpful AI assistant. Answer the user's question based *only* on the following context from a PDF. If the answer is not in the context, say so.\n\nContext:\n${context}\n\nUser Question: ${message}\n\nAnswer:`;
-        
-        const completion = await openAIClient.chat.completions.create({ model: 'gpt-3.5-turbo', messages: [{ role: 'system', content: prompt }] });
+        const context = relevantDocs.map(doc => doc.pageContent).join("\n\n---\n\n");
+        const prompt = `You are a helpful assistant. Answer the user's query based on the provided context from a PDF document. If the context doesn't contain the answer, say so. Context:\n---\n${context}`;
+        const completion = await openAIClient.chat.completions.create({ messages: [{ role: 'system', content: prompt }, { role: 'user', content: message }], model: 'gpt-3.5-turbo' });
         res.json({ message: completion.choices[0].message.content, docs: relevantDocs });
     } catch (error) {
-        console.error('[API /chat] Error:', error);
-        res.status(500).json({ message: 'Failed to get chat response.' });
+        console.error(`[Server /chat] Error:`, error);
+        res.status(500).json({ message: `Chat error: ${error.message}` });
     }
 });
 
-// --- ROUTES END ---
-console.log('[Server Setup] Routes defined successfully.');
 
-// --- START SERVER ---
+// --- Start Server ---
 app.listen(PORT, () => {
-    console.log(`[Server Startup] Express server started on port ${PORT}.`);
-});
-
-// Graceful shutdown
-process.on('SIGINT', async () => {
-    console.log('[Process Shutdown] SIGINT received. Closing worker...');
-    await worker.close();
-    process.exit(0);
-});
-process.on('SIGTERM', async () => {
-    console.log('[Process Shutdown] SIGTERM received. Closing worker...');
-    await worker.close();
-    process.exit(0);
+    console.log(`Server started on port ${PORT}.`);
 });

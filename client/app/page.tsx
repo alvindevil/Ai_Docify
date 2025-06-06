@@ -15,6 +15,13 @@ import { ArrowLeft, Sun, Moon } from "lucide-react";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
+// Add this interface after your imports
+interface UploadedFile {
+    name: string;      // The original filename for display
+    publicId: string;  // The unique ID from Cloudinary
+    fileUrl: string;   // The secure URL from Cloudinary
+}
+
 type AppState = 'landing' | 'main';
 
 function PageContent() { 
@@ -48,8 +55,8 @@ function PageContent() {
 
   const [showChat, setShowChat] = useState(true);
   const [showNotes, setShowNotes] = useState(false);
-  const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
-  const [selectedPdf, setSelectedPdf] = useState<string | null>(null);
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [selectedPdf, setSelectedPdf] = useState<UploadedFile | null>(null);
   const [summaryText, setSummaryText] = useState<string | null>(null);
   const [isSummaryLoading, setIsSummaryLoading] = useState<boolean>(false);
   const [summaryError, setSummaryError] = useState<string | null>(null);
@@ -64,19 +71,43 @@ function PageContent() {
     setIsSummaryLoading(false);
   }, [selectedPdf]);
 
+  // Effects to load file state from localStorage on initial render
   useEffect(() => {
-    try {
-      const savedFiles = localStorage.getItem('uploadedFiles');
-      if (savedFiles) {
-        const files: string[] = JSON.parse(savedFiles);
+    // Load the list of all uploaded files
+    const savedFilesJson = localStorage.getItem('uploadedFiles');
+    if (savedFilesJson) {
+      try {
+        const files: UploadedFile[] = JSON.parse(savedFilesJson);
         setUploadedFiles(files);
-        const lastOpened = localStorage.getItem("selectedPdf");
-        if (lastOpened && files.includes(lastOpened)) {
-          setSelectedPdf(lastOpened);
+
+        // Then, check for the last selected file
+        const lastOpenedJson = localStorage.getItem("selectedPdf");
+        if (lastOpenedJson) {
+          const lastOpenedFile: UploadedFile = JSON.parse(lastOpenedJson);
+          // Ensure the last selected file is still in the main list before setting it
+          if (files.some(f => f.publicId === lastOpenedFile.publicId)) {
+            setSelectedPdf(lastOpenedFile);
+          }
         }
+      } catch (e) {
+        console.error("Failed to parse file data from localStorage", e);
+        // Clear corrupted data
+        localStorage.removeItem('uploadedFiles');
+        localStorage.removeItem('selectedPdf');
       }
-    } catch (e) { console.error("Failed to load files from localStorage", e); }
-  }, []);
+    }
+  }, []); // Runs only once on mount
+
+  // Effect to save file list to localStorage whenever it changes
+  useEffect(() => {
+    if (isInitialized) { // Only run after initial load
+        if (uploadedFiles.length > 0) {
+            localStorage.setItem('uploadedFiles', JSON.stringify(uploadedFiles));
+        } else {
+            localStorage.removeItem('uploadedFiles');
+        }
+    }
+  }, [uploadedFiles, isInitialized]);
 
   useEffect(() => {
     if (uploadedFiles.length > 0) {
@@ -86,29 +117,51 @@ function PageContent() {
     }
   }, [uploadedFiles, isInitialized]);
 
-  const handleFileUploaded = (fileName: string) => {
-    if (!uploadedFiles.includes(fileName)) {
-      setUploadedFiles((prev) => [fileName, ...prev]);
+  // Updated handler to work with the response object from the new backend
+  const handleFileUploaded = (responseData: { fileName: string; publicId: string; fileUrl: string; }) => {
+    const newFile: UploadedFile = {
+      name: responseData.fileName,      // Original filename
+      publicId: responseData.publicId,
+      fileUrl: responseData.fileUrl,
+    };
+    // Add file only if it's not already in the list (based on publicId)
+    if (!uploadedFiles.some(f => f.publicId === newFile.publicId)) {
+        setUploadedFiles((prev) => [newFile, ...prev]);
     }
-    setSelectedPdf(fileName);
-    localStorage.setItem("selectedPdf", fileName);
+    setSelectedPdf(newFile);
+    localStorage.setItem("selectedPdf", JSON.stringify(newFile));
   };
-  
+
   const handleSelectPdf = (fileName: string) => {
-    setSelectedPdf(fileName);
-    localStorage.setItem("selectedPdf", fileName);
+    const fileToSelect = uploadedFiles.find(f => f.name === fileName);
+    if (fileToSelect) {
+      setSelectedPdf(fileToSelect);
+      localStorage.setItem("selectedPdf", JSON.stringify(fileToSelect));
+    }
+  };
+
+  // Add this helper function to fix the PDF preview
+  const getInlinePdfUrl = (cloudinaryUrl: string | null): string => {
+      if (!cloudinaryUrl) return '';
+      const urlParts = cloudinaryUrl.split('/upload/');
+      if (urlParts.length !== 2) return cloudinaryUrl; // Return original if structure is unexpected
+      return `${urlParts[0]}/upload/fl_inline/${urlParts[1]}`;
   };
 
   const handleGetStarted = () => router.push('/auth');
   const handleBackToLanding = () => setCurrentView('landing');
 
   const handleGenerateSummary = async () => {
-    if (!selectedPdf) return;
+    if (!selectedPdf) {
+      alert("Please select a PDF to summarize.");
+      return;
+    }
     setIsSummaryLoading(true);
     setSummaryText(null);
     setSummaryError(null);
     try {
-      const requestUrl = `${BACKEND_URL}/api/summarize?fileName=${encodeURIComponent(selectedPdf)}`;
+      // Use the unique publicId to request the summary
+      const requestUrl = `${BACKEND_URL}/api/summarize?publicId=${encodeURIComponent(selectedPdf.publicId)}`;
       const response = await fetch(requestUrl);
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: 'An unknown server error occurred.' }));
@@ -117,7 +170,7 @@ function PageContent() {
       const data = await response.json();
       setSummaryText(data.summary);
     } catch (error) {
-      setSummaryError(error instanceof Error ? error.message : "An unknown error occurred.");
+      setSummaryError(error instanceof Error ? error.message : "Failed to fetch summary.");
     } finally {
       setIsSummaryLoading(false);
     }
@@ -164,8 +217,12 @@ function PageContent() {
             <div className="flex-1 flex flex-col min-h-0">
               <h3 className="text-md font-semibold mb-3">🗂️ Uploaded Documents</h3>
               <div className="flex-1 overflow-y-auto pr-2">
-                <PdfQueuePanel files={uploadedFiles} onSelect={handleSelectPdf} selectedFile={selectedPdf} />
-              </div>
+                    <PdfQueuePanel
+                      files={uploadedFiles.map(file => file.name)} // Pass only names for display
+                      onSelect={handleSelectPdf} // This handler now finds the full object
+                      selectedFile={selectedPdf ? selectedPdf.name : null} // Pass the name of the selected file
+                    />
+                  </div>
               <Button className="mt-4 w-full" variant="destructive" onClick={handleClearFiles}>Clear All</Button>
             </div>
           </aside>
@@ -180,9 +237,20 @@ function PageContent() {
             </div>
             
             {/* --- FIX: Pass the correct identifier to the preview component --- */}
-            <div className="mb-6">
-                <PdfPreview pdfIdentifier={selectedPdf} />
-            </div>
+            <div className="h-[60vh] mb-6 flex-shrink-0">
+                    {selectedPdf ? (
+                      // Use the helper to construct the correct, inline URL
+                      <PdfPreview pdfIdentifier={selectedPdf?.publicId || null} />
+                    ) : (
+                      // Your placeholder JSX for when no PDF is selected
+                      <div className={`w-full h-full border-2 border-dashed rounded-lg flex items-center justify-center ${darkMode ? 'border-gray-500 bg-[#2a2a2a]' : 'border-gray-300 bg-gray-50'}`}>
+                        <div className="text-center">
+                          <p className="text-gray-500 mb-2">No PDF selected.</p>
+                          <p className="text-sm text-gray-400">Upload or select a document to get started!</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
             <div className={`border-t pt-4 ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
               <div className="flex justify-between items-center mb-3">
@@ -206,7 +274,7 @@ function PageContent() {
                 <h2 className="text-lg font-semibold">💬 Chat Assistant</h2>
               </div>
               {/* --- FIX: Pass the selected PDF ID down to the chat component --- */}
-              <ChatComponent pdfIdentifier={selectedPdf} />
+              <ChatComponent pdfIdentifier={selectedPdf?.publicId || null} />
             </aside>
           )}
         </div>
