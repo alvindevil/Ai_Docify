@@ -32,6 +32,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      google-fonts:
+        specifier: ^1.0.0
+        version: 1.0.0
       lucide-react:
         specifier: ^0.507.0
         version: 0.507.0(react@19.1.0)
@@ -1479,6 +1482,9 @@ packages:
   globalthis@1.0.4:
     resolution: {integrity: sha512-DpLKbNU4WylpxJykQujfCcwYWiV/Jhm50Goo0wrVILAv5jOr9d+H+UR3PhSCD2rCCEIg0uc+G+muBTwD54JhDQ==}
     engines: {node: '>= 0.4'}
+
+  google-fonts@1.0.0:
+    resolution: {integrity: sha512-i3zzI697L9WdmnaSqYB5KYN2fqDpjfpW+UTBdzhmte6JSvS2GOczZZtfocpWhwPwPqsEAH76/46DrsnD5W6BQQ==}
 
   gopd@1.2.0:
     resolution: {integrity: sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg==}
@@ -3929,6 +3935,8 @@ snapshots:
     dependencies:
       define-properties: 1.2.1
       gopd: 1.2.0
+
+  google-fonts@1.0.0: {}
 
   gopd@1.2.0: {}
 
