@@ -52,7 +52,7 @@ const worker = new Worker(
     'file-upload-queue',
     async job => {
         console.log('[Worker] Processing job:', job.data.filename);
-        const data = JSON.parse(job.data); // data.path here is the absolute path from the uploader
+        const data = JSON.parse(job.data); 
 
         try {
             const loader = new PDFLoader(data.path); // data.path should be absolute path to the (potentially ephemeral) file
@@ -75,7 +75,7 @@ const worker = new Worker(
                 embeddings,
                 {
                     url: process.env.QDRANT_URL || 'http://localhost:6333',
-                    collectionName: 'Ai_Docs',
+                    collectionName: 'Ai_Docs_new',
                     // You might need to specify vector size if fromDocuments doesn't infer it for a new collection:
                     // config: {
                     //   params: {
@@ -328,7 +328,7 @@ app.get('/chat', async (req, res) => {
             embeddings,
             {
                 url: process.env.QDRANT_URL || 'http://localhost:6333', // Use ENV VAR
-                collectionName: 'Ai_Docs',
+                collectionName: 'Ai_Docs_new',
             }
         );
         
