@@ -12,6 +12,7 @@ import { fileURLToPath } from 'url'; // For __dirname in ES modules
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 
 dotenv.config();
+//to safe 1st commit 
 
 // --- Path Configuration ---
 const __filename = fileURLToPath(import.meta.url);
