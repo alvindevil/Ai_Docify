@@ -53,7 +53,7 @@ const worker = new Worker(
     async job => {
         console.log('[Worker] Processing job:', job.data.filename);
         const data = JSON.parse(job.data); 
-
+        
         try {
             const loader = new PDFLoader(data.path); // data.path should be absolute path to the (potentially ephemeral) file
             const docs = await loader.load();
@@ -223,7 +223,7 @@ app.post('/upload/pdf', (req, res) => {
             const responsePayload = {
                 message: 'File uploaded successfully and queued for processing!',
                 fileName: req.file.filename,
-                fileUrl: `/uploads/${encodeURIComponent(req.file.filename)}` // For ephemeral preview
+                fileUrl: `/uploads_ephemeral/${encodeURIComponent(req.file.filename)}` // For ephemeral preview
             };
             // IMPORTANT: This fileUrl is for ephemeral storage. If you don't use persistent disk,
             // this URL might not work reliably after a short time or server restart.
