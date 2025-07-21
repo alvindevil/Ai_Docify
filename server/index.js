@@ -156,7 +156,7 @@ const app = express();
 const PORT = process.env.PORT || 8000;
 
 // CORS Configuration (from your provided code, seems good)
-const allowedOrigins = ['http://localhost:3000', 'http://127.0.0.1:3000'];
+const allowedOrigins = ['http://localhost:3000', 'http://127.0.0.1:3000', 'https://ai-docify-ten.vercel.app'];
 const vercelFrontendUrl = process.env.FRONTEND_URL;
 if (vercelFrontendUrl) {
     allowedOrigins.push(vercelFrontendUrl);
