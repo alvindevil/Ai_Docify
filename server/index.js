@@ -74,8 +74,8 @@ const worker = new Worker(
                 docs, // Pass loaded documents directly
                 embeddings,
                 {
-                    url: process.env.QDRANT_URL || 'http://localhost:6333',
-                    collectionName: 'Ai_Docs_new',
+                    url: process.env.QDRANT_URL ,
+                    collectionName: 'Ai_Docs_main',
                     // You might need to specify vector size if fromDocuments doesn't infer it for a new collection:
                     // config: {
                     //   params: {
@@ -327,8 +327,8 @@ app.get('/chat', async (req, res) => {
         const vectorStore = await QdrantVectorStore.fromExistingCollection(
             embeddings,
             {
-                url: process.env.QDRANT_URL || 'http://localhost:6333', // Use ENV VAR
-                collectionName: 'Ai_Docs_new',
+                url: process.env.QDRANT_URL , // Use ENV VAR
+                collectionName: 'Ai_Docs_main',
             }
         );
         
@@ -378,6 +378,6 @@ app.listen(PORT, () => {
     console.log(`Server started on port ${PORT}.`);
     console.log(`Uploads will be handled at: ${absoluteUploadPath}`);
     console.log(`Expecting frontend at: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
-    console.log(`Qdrant URL configured to: ${process.env.QDRANT_URL || 'http://localhost:6333'}`);
+    console.log(`Qdrant URL configured to: ${process.env.QDRANT_URL }`);
     console.log(`Redis URL configured for BullMQ: ${process.env.REDIS_URL || 'localhost:6379'}`);
 });
