@@ -1,4 +1,4 @@
-# Ai_Docify (Private Repo)
+# Ai_Docify 
 
 **Ai_Docify** is a full-stack AI-powered web application that allows authenticated users to upload PDFs and interact with them using smart chat functionalities.
 
