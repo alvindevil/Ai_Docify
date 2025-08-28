@@ -241,3 +241,8 @@ QDRANT_API_KEY=
 
 **Thanks for checking out AiDocify — the working demo you can see below , and on the deployed website also .**
 
+
+
+![Demo](https://user-images.githubusercontent.com/.../demo.mp4](https://github.com/user-attachments/assets/4aa5fddf-7a3a-44c0-8ed9-7f782d8039b1)
+
+
