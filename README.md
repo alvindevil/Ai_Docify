@@ -103,58 +103,11 @@ Notes:
 * MongoDB (optional; used for metadata/user history)
 * OpenAI API key (or other provider API key) — **required to run embeddings/LLM** locally
 
----
 
-## 7. Repo structure (suggested)
 
-```
-/aiddocify
-├─ /backend
-│  ├─ src/
-│  ├─ routes/
-│  ├─ services/
-│  ├─ uploads/       # local PDF storage for demo
-│  └─ package.json
-├─ /frontend
-│  ├─ src/
-│  └─ package.json
-├─ docker-compose.yml  # optional: qdrant + mongo
-├─ demo.mp4            # working video proof
-└─ README.md
-```
+## 7. Installation & run (local)
 
----
-
-## 8. Environment variables (.env example)
-
-Create `.env` files in `backend/` and `frontend/` as needed.
-
-**backend/.env**
-
-```
-PORT=8080
-MONGO_URI=mongodb://localhost:27017/aiddocify
-OPENAI_API_KEY=sk-xxxxx
-QDRANT_URL=http://localhost:6333
-QDRANT_API_KEY=        # optional if using Qdrant Cloud
-S3_BUCKET_NAME=        # optional for cloud storage
-AWS_ACCESS_KEY_ID=
-AWS_SECRET_ACCESS_KEY=
-```
-
-**frontend/.env** (for local testing; do not commit keys)
-
-```
-REACT_APP_API_URL=http://localhost:8080
-```
-
-**Security reminder:** Never commit `.env` with real API keys. Use Git ignore.
-
----
-
-## 9. Installation & run (local)
-
-### 9.1 Start Qdrant (recommended via Docker)
+### 7.1 Start Qdrant (recommended via Docker)
 
 ```
 # Quick run
@@ -164,7 +117,7 @@ docker run -p 6333:6333 -p 6334:6334 qdrant/qdrant
 docker-compose up -d
 ```
 
-### 9.2 Backend
+### 7.2 Backend
 
 ```
 cd backend
@@ -175,7 +128,7 @@ npm run dev
 
 By default the backend will listen at `http://localhost:8080`.
 
-### 9.3 Frontend
+### 7.3 Frontend
 
 ```
 cd frontend
@@ -187,7 +140,7 @@ Open `http://localhost:3000` and test the flows.
 
 ---
 
-## 10. How to create the demo video and include it in README
+## 8. How to create the demo video and include it in README
 
 1. Use screen recorder (OBS Studio / ShareX / Loom) and record these steps: start backend, start qdrant, upload sample pdf, show embed/upsert logs, run query, show final AI result.
 2. Keep the video 1–3 minutes long and highlight the exact flows.
@@ -208,7 +161,7 @@ Note: GitHub will not autoplay large videos; hosting on YouTube or an external C
 
 ---
 
-## 11. Endpoints & usage (example)
+## 9. Endpoints & usage (example)
 
 > Adjust names to your actual routes.
 
@@ -230,25 +183,26 @@ Note: GitHub will not autoplay large videos; hosting on YouTube or an external C
 
 ---
 
-## 12. Embeddings & Qdrant notes
+## 10. Embeddings & Qdrant notes
 
 * The preferred flow is: chunk text → embed each chunk → upsert vectors with `payload` containing `{fileUrl, page, chunkIndex, textSnippet}`.
 * For local demo we store PDFs in `backend/uploads/` and put `fileUrl` as `http://localhost:8080/uploads/<file.pdf>` in payload.
-* In production: store PDFs in S3 and put S3 URL in payload (so workers can fetch raw file if needed).
+* In production: store PDFs in S3 or any cloud database , ( eg: supabase ) if also want the file preview feature and put  URL in payload (so workers can fetch raw file if needed).
 * Qdrant Cloud is recommended in production to avoid self-hosting complexity and get TLS + managed backups.
 
 ---
 
-## 13. Limitations & known issues
+## 11. Limitations & known issues
 
-* **No public backend hosting**: The public link (if present) will not expose endpoints requiring real API keys. This repo provides a **local** fully working demo and a recorded video as proof.
-* **API cost**: OpenAI (LLM + embeddings) is the main recurring cost — be explicit in the README about why there's no hosted backend.
+
+* **System design changes**: Deployment for public use requires re-architecting for feasibility and good user experience.
+* **API cost**: OpenAI (LLM + embeddings) is the main recurring cost
 * **Qdrant in repo**: Local Qdrant is included for demo, but running it on a free hosted platform requires migration to Qdrant Cloud.
 * **Scaling**: The current design is suitable for prototypes. For production, add batching, rate limiting, job queues (Bull / RabbitMQ), and worker scaling for embedding generation.
 
 ---
 
-## 14. Roadmap / Future improvements
+## 12. Roadmap / Future improvements
 
 * Provide a deployable Helm chart / Docker Compose for full cloud deployment (Qdrant + backend + Mongo + S3)
 * Migrate file storage to S3 and add signed URLs for secure downloads
@@ -259,7 +213,7 @@ Note: GitHub will not autoplay large videos; hosting on YouTube or an external C
 
 ---
 
-## 15. Contribution guide
+## 13. Contribution guide
 
 * Fork the repo → create a feature branch → open PR with description and demo steps
 * For code changes that touch embeddings / LLM calls, provide mock/stub flows for CI so tests don't leak API keys
@@ -267,14 +221,7 @@ Note: GitHub will not autoplay large videos; hosting on YouTube or an external C
 
 ---
 
-## 16. License & credits
-
-* License: **MIT** (or choose a license you prefer)
-* Credits: Built by *\[Your Name]*. Uses OpenAI API, Qdrant, React, Node.js, TailwindCSS
-
----
-
-## 17. Contact
+## 14. Contact
 
 If you want to test locally or need help running the demo, open an issue or contact me at: `yadavs47334@gmail.com`.
 
