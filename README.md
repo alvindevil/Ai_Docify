@@ -2,7 +2,7 @@
 
 **AI-powered PDF Summarizer & Q\&A — (MERN + OpenAI + Qdrant)**
 
-> *Status:* **Working locally** (full backend + vector DB run locally). Frontend-only deployed link will be provided in the repo if needed — backend calls requiring API keys are disabled in any public deployment due to API cost/security. A short working video of the local app is included in this repo as proof of functionality.
+> *Description :* **an AI-powered document assistant that allows users to upload PDFs and interact with their content through natural language queries. It integrates OpenAI’s GPT models with a vector database (Qdrant) to enable semantic search, contextual understanding, and intelligent responses. The system is designed for students, researchers, and professionals who want quick summaries, explanations, or answers directly from their documents.
 
 ---
 
