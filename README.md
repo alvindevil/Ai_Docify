@@ -276,7 +276,7 @@ Note: GitHub will not autoplay large videos; hosting on YouTube or an external C
 
 ## 17. Contact
 
-If you want to test locally or need help running the demo, open an issue or contact me at: `your-email@example.com`.
+If you want to test locally or need help running the demo, open an issue or contact me at: `yadavs47334@gmail.com`.
 
 ---
 
