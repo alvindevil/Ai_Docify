@@ -1,6 +1,6 @@
 # AiDocify
 
-<img width="1886" height="951" alt="Screenshot 2025-08-31 191051" src="https://github.com/user-attachments/assets/f0de04a2-8eb6-459d-8546-1c509de2e8fc" />
+
 
 ## Demo
 
@@ -253,5 +253,7 @@ QDRANT_API_KEY=
 
 
 ![Demo](https://user-images.githubusercontent.com/.../demo.mp4](https://github.com/user-attachments/assets/4aa5fddf-7a3a-44c0-8ed9-7f782d8039b1)
+
+<img width="1886" height="951" alt="Screenshot 2025-08-31 191051" src="https://github.com/user-attachments/assets/f0de04a2-8eb6-459d-8546-1c509de2e8fc" />
 
 
