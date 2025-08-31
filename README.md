@@ -1,5 +1,14 @@
 # AiDocify
 
+<img width="1886" height="951" alt="Screenshot 2025-08-31 191051" src="https://github.com/user-attachments/assets/f0de04a2-8eb6-459d-8546-1c509de2e8fc" />
+
+## Demo
+
+[![Watch the Demo](https://img.youtube.com/vi/q91LdsISmHw/maxresdefault.jpg)](https://youtu.be/q91LdsISmHw?si=sQaOreUeWrnEVmMo)
+
+Click the image above to watch the demo on YouTube.
+
+
 **AI-powered PDF Summarizer & Q\&A — (MERN + OpenAI + Qdrant)**
 
 > *Description :* **an AI-powered document assistant that allows users to upload PDFs and interact with their content through natural language queries. It integrates OpenAI’s GPT models with a vector database (Qdrant) to enable semantic search, contextual understanding, and intelligent responses. The system is designed for students, researchers, and professionals who want quick summaries, explanations, or answers directly from their documents.
